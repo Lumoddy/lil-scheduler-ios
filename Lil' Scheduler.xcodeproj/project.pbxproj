@@ -1,0 +1,604 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1354EF7C2E2DDD87003BBBB1 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 1354EF7B2E2DDD87003BBBB1 /* FirebaseAuth */; };
+		1354EF7E2E2DDD87003BBBB1 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 1354EF7D2E2DDD87003BBBB1 /* FirebaseFirestore */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		1354EF5B2E2DDA37003BBBB1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1354EF3C2E2DDA35003BBBB1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1354EF432E2DDA35003BBBB1;
+			remoteInfo = "Lil' Scheduler";
+		};
+		1354EF652E2DDA37003BBBB1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1354EF3C2E2DDA35003BBBB1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1354EF432E2DDA35003BBBB1;
+			remoteInfo = "Lil' Scheduler";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		1354EF442E2DDA35003BBBB1 /* Lil' Scheduler.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Lil' Scheduler.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1354EF5A2E2DDA37003BBBB1 /* Lil' SchedulerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Lil' SchedulerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1354EF642E2DDA37003BBBB1 /* Lil' SchedulerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Lil' SchedulerUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		1354EF6C2E2DDA37003BBBB1 /* Exceptions for "Lil' Scheduler" folder in "Lil' Scheduler" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 1354EF432E2DDA35003BBBB1 /* Lil' Scheduler */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		1354EF462E2DDA35003BBBB1 /* Lil' Scheduler */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				1354EF6C2E2DDA37003BBBB1 /* Exceptions for "Lil' Scheduler" folder in "Lil' Scheduler" target */,
+			);
+			path = "Lil' Scheduler";
+			sourceTree = "<group>";
+		};
+		1354EF5D2E2DDA37003BBBB1 /* Lil' SchedulerTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Lil' SchedulerTests";
+			sourceTree = "<group>";
+		};
+		1354EF672E2DDA37003BBBB1 /* Lil' SchedulerUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Lil' SchedulerUITests";
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1354EF412E2DDA35003BBBB1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1354EF7C2E2DDD87003BBBB1 /* FirebaseAuth in Frameworks */,
+				1354EF7E2E2DDD87003BBBB1 /* FirebaseFirestore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1354EF572E2DDA37003BBBB1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1354EF612E2DDA37003BBBB1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1354EF3B2E2DDA35003BBBB1 = {
+			isa = PBXGroup;
+			children = (
+				1354EF462E2DDA35003BBBB1 /* Lil' Scheduler */,
+				1354EF5D2E2DDA37003BBBB1 /* Lil' SchedulerTests */,
+				1354EF672E2DDA37003BBBB1 /* Lil' SchedulerUITests */,
+				1354EF452E2DDA35003BBBB1 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		1354EF452E2DDA35003BBBB1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1354EF442E2DDA35003BBBB1 /* Lil' Scheduler.app */,
+				1354EF5A2E2DDA37003BBBB1 /* Lil' SchedulerTests.xctest */,
+				1354EF642E2DDA37003BBBB1 /* Lil' SchedulerUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1354EF432E2DDA35003BBBB1 /* Lil' Scheduler */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1354EF6D2E2DDA37003BBBB1 /* Build configuration list for PBXNativeTarget "Lil' Scheduler" */;
+			buildPhases = (
+				1354EF402E2DDA35003BBBB1 /* Sources */,
+				1354EF412E2DDA35003BBBB1 /* Frameworks */,
+				1354EF422E2DDA35003BBBB1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				1354EF462E2DDA35003BBBB1 /* Lil' Scheduler */,
+			);
+			name = "Lil' Scheduler";
+			packageProductDependencies = (
+				1354EF7B2E2DDD87003BBBB1 /* FirebaseAuth */,
+				1354EF7D2E2DDD87003BBBB1 /* FirebaseFirestore */,
+			);
+			productName = "Lil' Scheduler";
+			productReference = 1354EF442E2DDA35003BBBB1 /* Lil' Scheduler.app */;
+			productType = "com.apple.product-type.application";
+		};
+		1354EF592E2DDA37003BBBB1 /* Lil' SchedulerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1354EF722E2DDA37003BBBB1 /* Build configuration list for PBXNativeTarget "Lil' SchedulerTests" */;
+			buildPhases = (
+				1354EF562E2DDA37003BBBB1 /* Sources */,
+				1354EF572E2DDA37003BBBB1 /* Frameworks */,
+				1354EF582E2DDA37003BBBB1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1354EF5C2E2DDA37003BBBB1 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				1354EF5D2E2DDA37003BBBB1 /* Lil' SchedulerTests */,
+			);
+			name = "Lil' SchedulerTests";
+			packageProductDependencies = (
+			);
+			productName = "Lil' SchedulerTests";
+			productReference = 1354EF5A2E2DDA37003BBBB1 /* Lil' SchedulerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		1354EF632E2DDA37003BBBB1 /* Lil' SchedulerUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1354EF752E2DDA37003BBBB1 /* Build configuration list for PBXNativeTarget "Lil' SchedulerUITests" */;
+			buildPhases = (
+				1354EF602E2DDA37003BBBB1 /* Sources */,
+				1354EF612E2DDA37003BBBB1 /* Frameworks */,
+				1354EF622E2DDA37003BBBB1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1354EF662E2DDA37003BBBB1 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				1354EF672E2DDA37003BBBB1 /* Lil' SchedulerUITests */,
+			);
+			name = "Lil' SchedulerUITests";
+			packageProductDependencies = (
+			);
+			productName = "Lil' SchedulerUITests";
+			productReference = 1354EF642E2DDA37003BBBB1 /* Lil' SchedulerUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1354EF3C2E2DDA35003BBBB1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1620;
+				TargetAttributes = {
+					1354EF432E2DDA35003BBBB1 = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					1354EF592E2DDA37003BBBB1 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 1354EF432E2DDA35003BBBB1;
+					};
+					1354EF632E2DDA37003BBBB1 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 1354EF432E2DDA35003BBBB1;
+					};
+				};
+			};
+			buildConfigurationList = 1354EF3F2E2DDA35003BBBB1 /* Build configuration list for PBXProject "Lil' Scheduler" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 1354EF3B2E2DDA35003BBBB1;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				1354EF7A2E2DDD87003BBBB1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 1354EF452E2DDA35003BBBB1 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1354EF432E2DDA35003BBBB1 /* Lil' Scheduler */,
+				1354EF592E2DDA37003BBBB1 /* Lil' SchedulerTests */,
+				1354EF632E2DDA37003BBBB1 /* Lil' SchedulerUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1354EF422E2DDA35003BBBB1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1354EF582E2DDA37003BBBB1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1354EF622E2DDA37003BBBB1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1354EF402E2DDA35003BBBB1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1354EF562E2DDA37003BBBB1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1354EF602E2DDA37003BBBB1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1354EF5C2E2DDA37003BBBB1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1354EF432E2DDA35003BBBB1 /* Lil' Scheduler */;
+			targetProxy = 1354EF5B2E2DDA37003BBBB1 /* PBXContainerItemProxy */;
+		};
+		1354EF662E2DDA37003BBBB1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1354EF432E2DDA35003BBBB1 /* Lil' Scheduler */;
+			targetProxy = 1354EF652E2DDA37003BBBB1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1354EF6E2E2DDA37003BBBB1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Lil' Scheduler/Info.plist";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.Lil--Scheduler";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1354EF6F2E2DDA37003BBBB1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Lil' Scheduler/Info.plist";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.Lil--Scheduler";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		1354EF702E2DDA37003BBBB1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		1354EF712E2DDA37003BBBB1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		1354EF732E2DDA37003BBBB1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.Lil--SchedulerTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Lil' Scheduler.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Lil' Scheduler";
+			};
+			name = Debug;
+		};
+		1354EF742E2DDA37003BBBB1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.Lil--SchedulerTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Lil' Scheduler.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Lil' Scheduler";
+			};
+			name = Release;
+		};
+		1354EF762E2DDA37003BBBB1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.Lil--SchedulerUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Lil' Scheduler";
+			};
+			name = Debug;
+		};
+		1354EF772E2DDA37003BBBB1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.Lil--SchedulerUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Lil' Scheduler";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1354EF3F2E2DDA35003BBBB1 /* Build configuration list for PBXProject "Lil' Scheduler" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1354EF702E2DDA37003BBBB1 /* Debug */,
+				1354EF712E2DDA37003BBBB1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1354EF6D2E2DDA37003BBBB1 /* Build configuration list for PBXNativeTarget "Lil' Scheduler" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1354EF6E2E2DDA37003BBBB1 /* Debug */,
+				1354EF6F2E2DDA37003BBBB1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1354EF722E2DDA37003BBBB1 /* Build configuration list for PBXNativeTarget "Lil' SchedulerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1354EF732E2DDA37003BBBB1 /* Debug */,
+				1354EF742E2DDA37003BBBB1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1354EF752E2DDA37003BBBB1 /* Build configuration list for PBXNativeTarget "Lil' SchedulerUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1354EF762E2DDA37003BBBB1 /* Debug */,
+				1354EF772E2DDA37003BBBB1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1354EF7A2E2DDD87003BBBB1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1354EF7B2E2DDD87003BBBB1 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1354EF7A2E2DDD87003BBBB1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		1354EF7D2E2DDD87003BBBB1 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1354EF7A2E2DDD87003BBBB1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 1354EF3C2E2DDA35003BBBB1 /* Project object */;
+}
