@@ -9,16 +9,16 @@ import UIKit
 import Firebase
 import FirebaseAuth
 
-class CreateAccountScreenView : UIViewController {
+public class CreateAccountScreenView : UIViewController {
 
     public static let VIEW_ID = "CreateAccountScreen"
     
-    @IBOutlet var emailField: UITextField!
-    @IBOutlet var passwordField: UITextField!
-    @IBOutlet var errorLabel: UILabel!
-    @IBOutlet var disableWhileProcessing: [UIView]?
+    @IBOutlet private var emailField: UITextField!
+    @IBOutlet private var passwordField: UITextField!
+    @IBOutlet private var errorLabel: UILabel!
+    @IBOutlet private var disableWhileProcessing: [UIView]?
     
-    @IBAction func navigateToLoginScreen(_ sender: Any) {
+    @IBAction private func navigateToLoginScreen(_ sender: Any) {
         navigationController!.setViewControllers(
             [
                 storyboard!.instantiateViewController(
@@ -27,19 +27,19 @@ class CreateAccountScreenView : UIViewController {
             animated: true)
     }
     
-    @IBAction func doCreateAccount() {
+    @IBAction private func doCreateAccount() {
         self.disableWhileProcessing?.forEach { view in
-            view.trySetEnabled(false)
+            view.setEnabled(false)
         }
         FirebaseAuth.Auth.auth().createUser(
             withEmail: self.emailField.text ?? "",
             password: self.passwordField.text ?? "",
             completion: either { credential in
-                print("Logged in")
+                super.navigationController!.dismiss(animated: true)
             } or: { error in
                 self.errorLabel.text = error.localizedDescription;
                 self.disableWhileProcessing?.forEach { view in
-                    view.trySetEnabled(true)
+                    view.setEnabled(true)
                 }
             })
     }

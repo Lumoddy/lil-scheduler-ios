@@ -9,36 +9,37 @@ import UIKit
 import Firebase
 import FirebaseAuth
 
-class LoginScreenView : UIViewController {
+public class LoginScreenView : UIViewController {
 
     public static let VIEW_ID = "LoginScreen"
     
-    @IBOutlet var emailField: UITextField!
-    @IBOutlet var passwordField: UITextField!
-    @IBOutlet var errorLabel: UILabel!
-    @IBOutlet var disableWhileProcessing: [UIView]?
+    @IBOutlet private var emailField: UITextField!
+    @IBOutlet private var passwordField: UITextField!
+    @IBOutlet private var errorLabel: UILabel!
+    @IBOutlet private var disableWhileProcessing: [UIView]?
     
-    @IBAction func navigateToCreateAccountScreen() {
-        navigationController!.setViewControllers(
+    @IBAction private func navigateToCreateAccountScreen() {
+        super.navigationController!.setViewControllers(
             [
                 storyboard!.instantiateViewController(
-                    withIdentifier: CreateAccountScreenView.VIEW_ID)],
+                    withIdentifier: CreateAccountScreenView.VIEW_ID),
+            ],
             animated: true)
     }
     
-    @IBAction func doLogin() {
+    @IBAction private func doLogin() {
         self.disableWhileProcessing?.forEach { view in
-            view.trySetEnabled(false)
+            view.setEnabled(false)
         }
         FirebaseAuth.Auth.auth().signIn(
             withEmail: self.emailField.text ?? "",
             password: self.passwordField.text ?? "",
             completion: either { credential in
-                print("Logged in")
+                super.navigationController!.dismiss(animated: true)
             } or: { error in
                 self.errorLabel.text = error.localizedDescription;
                 self.disableWhileProcessing?.forEach { view in
-                    view.trySetEnabled(true)
+                    view.setEnabled(true)
                 }
             })
     }
