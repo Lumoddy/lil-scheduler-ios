@@ -144,4 +144,15 @@ public enum CalendarTaskAttribute : Codable, CustomStringConvertible {
             return
         }
     }
+    
+    public func clone() -> CalendarTaskAttribute {
+        switch self {
+        case .duration(let milliseconds):
+            return .duration(milliseconds: milliseconds)
+        case .fixedDate(let at):
+            return .fixedDate(at: at)
+        case .priority(let index):
+            return .priority(index: index)
+        }
+    }
 }

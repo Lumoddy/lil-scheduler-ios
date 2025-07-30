@@ -47,4 +47,10 @@ public class UserData : Codable {
         var container = encoder.container(keyedBy: _Key.self)
         try container.encode(self.tasks, forKey: _Key.tasks)
     }
+    
+    public func clone() -> UserData {
+        var result = UserData()
+        result.tasks = self.tasks.map { task in task.clone() }
+        return result;
+    }
 }

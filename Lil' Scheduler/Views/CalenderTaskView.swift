@@ -17,11 +17,13 @@ public class CalenderTaskView : UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        super.translatesAutoresizingMaskIntoConstraints = false
         super.addSubview(self.loadNib())
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
+        super.translatesAutoresizingMaskIntoConstraints = false
         super.addSubview(self.loadNib())
     }
     

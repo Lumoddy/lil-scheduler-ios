@@ -102,7 +102,7 @@ public struct CalendarTask : Codable {
         var container = encoder.container(keyedBy: _Key.self)
 
         try container.encode(title, forKey: .title)
-        
+
         if description.count != 0 {
             try container.encode(description, forKey: .description)
         }
@@ -112,5 +112,15 @@ public struct CalendarTask : Codable {
         if let attributes = attributes, attributes.count != 0 {
             try container.encode(attributes, forKey: .attributes)
         }
+    }
+    
+    public func clone() -> CalendarTask {
+        return CalendarTask(
+            title: self.title,
+            description: self.description,
+            color: self.color,
+            attributes: self.attributes?.map { attribute in
+                attribute.clone()
+            })
     }
 }
