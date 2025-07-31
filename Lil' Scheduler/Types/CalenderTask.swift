@@ -7,7 +7,7 @@
 
 import SwiftUICore
 
-public struct CalendarTask : Codable {
+public final class CalendarTask : Codable {
     
     private enum _Key: CodingKey {
         

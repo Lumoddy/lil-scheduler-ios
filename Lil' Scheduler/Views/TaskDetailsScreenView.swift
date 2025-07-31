@@ -10,57 +10,45 @@ import Firebase
 import FirebaseAuth
 import FirebaseFirestore
 
-public class CalenderDayScreenView
+public class TaskDetailsScreenView
     : UIViewController,
     UITableViewDelegate,
     UITableViewDataSource {
     
-    public static let VIEW_ID = "CalendarDayScreen"
+    public static let VIEW_ID = "TaskDetailsScreen"
     
     @IBOutlet private var taskListContainer: UITableView!
     
     public var userData: UserData? = nil
-    public var cloudUserData: UserData? = nil
+    public var refreshParentDisplay: (() -> ())? = nil
+    
+    @IBAction private func doNewTask() {
+        super.navigationController!.pushViewController(
+            storyboard!.instantiateViewController(
+                withIdentifier: TaskListScreenView.VIEW_ID),
+            animated: true)
+    }
     
     public override func viewDidLoad() {
 
         super.viewDidLoad()
         
-        taskListContainer.dataSource = self;
-        taskListContainer.delegate = self;
-                
-        let auth = Auth.auth()
-        guard let currentUser = auth.currentUser else { return }
+        self.taskListContainer.dataSource = self;
+        self.taskListContainer.delegate = self;
         
-        let firestore = Firestore.firestore()
-        let userDocumentReference = firestore.document(
-            "users/\(currentUser.uid)")
-        
-        userDocumentReference.getDocument(completion: either { document in
-            
-            let userData: UserData
-            if document.exists {
-                do {
-                    userData = try document.data(as: UserData.self)
-                }
-                catch {
-                    print(error)
-                    return
-                }
+        if self.userData == nil {
+            if let cloudData = UserData.cloudData {
+                self.userData = cloudData
             }
             else {
-                userData = UserData()
-            }
-            
-            DispatchQueue.main.async {
-                self.cloudUserData = userData
-                self.userData = userData.clone()
-                self.taskListContainer.reloadData()
+                UserData.cloudGet(completion: either { cloudData in
+                    self.userData = cloudData
+                }
+                or: { error in
+                    print(error)
+                })
             }
         }
-        or: { error in
-            print(error)
-        })
     }
     
     public func tableView(
@@ -75,6 +63,7 @@ public class CalenderDayScreenView
                     self.userData!.tasks.remove(at: indexPath.row)
                     tableView.deleteRows(at: [indexPath], with: .automatic)
                     completion(true)
+                    self.refreshParentDisplay?()
                 })
         ])
     }
@@ -100,13 +89,10 @@ public class CalenderDayScreenView
                 do {
                     try userDocumentReference.setData(
                         from: userData!,
-                        completion: { error in
-                            guard let error = error else { return }
+                        completion: either { error in
                             print(error)
-                            DispatchQueue.main.async {
-                                self.userData = self.cloudUserData!.clone()
-                            }
-                        })
+                        }
+                        or: { })
                 }
                 catch {
                     print(error)

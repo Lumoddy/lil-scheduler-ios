@@ -100,6 +100,38 @@ public func either<First, Second, Result, Failure>(
     }
 }
 
+/// Merges two closures into one with an optional parameter, one for each
+/// case.
+public func either<Value, Result>(
+    _ firstClosure: @escaping (Value) -> Result,
+    or secondClosure: @escaping () -> Result
+) -> (Value?) -> Result {
+    return { value in
+        if let value = value {
+            return firstClosure(value)
+        }
+        else {
+            return secondClosure()
+        }
+    }
+}
+
+/// Merges two closures into one with an optional parameter, one for each
+/// case.
+public func either<Value, Result, Failure>(
+    _ firstClosure: @escaping (Value) throws(Failure) -> Result,
+    or secondClosure: @escaping () throws(Failure) -> Result
+) -> (Value?) throws(Failure) -> Result {
+    return { value in
+        if let value = value {
+            return try firstClosure(value)
+        }
+        else {
+            return try secondClosure()
+        }
+    }
+}
+
 /// Calls the closure '`then`' when the async closure returns a value.
 @discardableResult
 public func when<Result>(
