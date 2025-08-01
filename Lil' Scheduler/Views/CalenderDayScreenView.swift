@@ -36,31 +36,37 @@ public class CalenderDayScreenView
         let userDocumentReference = firestore.document(
             "users/\(currentUser.uid)")
         
-        userDocumentReference.getDocument(completion: either { document in
-            
-            let userData: UserData
-            if document.exists {
-                do {
-                    userData = try document.data(as: UserData.self)
+        userDocumentReference.getDocument {
+            switch (Result($0, or: $1)) {
+            case .success(let document):
+                
+                let userData: UserData
+                if document.exists {
+                    do {
+                        userData = try document.data(as: UserData.self)
+                    }
+                    catch {
+                        print(error)
+                        return
+                    }
                 }
-                catch {
-                    print(error)
-                    return
+                else {
+                    userData = UserData()
                 }
-            }
-            else {
-                userData = UserData()
-            }
-            
-            DispatchQueue.main.async {
-                self.cloudUserData = userData
-                self.userData = userData.clone()
-                self.taskListContainer.reloadData()
+                
+                DispatchQueue.main.async {
+                    self.cloudUserData = userData
+                    self.userData = userData.clone()
+                    self.taskListContainer.reloadData()
+                }
+                
+                break;
+                
+            case .failure(let error):
+                print(error)
+                break;
             }
         }
-        or: { error in
-            print(error)
-        })
     }
     
     public func tableView(
@@ -77,49 +83,6 @@ public class CalenderDayScreenView
                     completion(true)
                 })
         ])
-    }
-    
-    public func tableView(
-        _ tableView: UITableView,
-        commit editingStyle: UITableViewCell.EditingStyle,
-        forRowAt indexPath: IndexPath
-    ) {
-        switch indexPath.section {
-        case 0:
-            switch editingStyle {
-            case .delete:
-
-                let index = indexPath.row
-                
-                let auth = Auth.auth()
-                
-                let firestore = Firestore.firestore()
-                let userDocumentReference = firestore.document(
-                    "users/\(auth.currentUser!.uid)")
-                
-                do {
-                    try userDocumentReference.setData(
-                        from: userData!,
-                        completion: { error in
-                            guard let error = error else { return }
-                            print(error)
-                            DispatchQueue.main.async {
-                                self.userData = self.cloudUserData!.clone()
-                            }
-                        })
-                }
-                catch {
-                    print(error)
-                }
-                
-                break
-
-            default:
-                break
-            }
-        default:
-            break
-        }
     }
     
     public func numberOfSections(in tableView: UITableView) -> Int {

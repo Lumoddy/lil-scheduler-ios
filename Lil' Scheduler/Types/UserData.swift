@@ -19,8 +19,10 @@ public class UserData : Codable {
     public static var cloudData: UserData? = nil
     
     public static func cloudGet(
-        completion: @escaping (UserData?, (any Error)?) -> ()
+        completion: ((UserData?, (any Error)?) -> ())?
     ) {
+        
+        print("Fetching UserData from cloud...");
         
         let auth = Auth.auth()
         
@@ -33,29 +35,38 @@ public class UserData : Codable {
             case (let document?, nil):
                 if document.exists {
                     do {
-                        return completion(try document.data(as: UserData.self), nil)
+                        print("Found UserData from cloud.");
+                        completion?(try document.data(as: UserData.self), nil)
+                        return
                     }
                     catch {
-                        return completion(nil, error)
+                        print("Failed UserData parse.");
+                        completion?(nil, error)
+                        return
                     }
                 }
                 else {
-                    return completion(UserData(), nil)
+                    print("Found empty UserData from cloud.");
+                    completion?(UserData(), nil)
+                    return
                 }
-                break
             case (nil, let error?):
-                return completion(nil, error)
+                print("Failed document parse.");
+                completion?(nil, error)
+                return
             default:
-                return assertionFailure()
+                preconditionFailure()
             }
         }
     }
     
     public static func cloudSet(
         _ userData: UserData,
-        completion: @escaping ((any Error)?) -> ()
+        completion: (((any Error)?) -> ())? = nil
     ) throws {
         
+        print("Sending UserData to cloud...");
+
         let auth = Auth.auth()
         
         let firestore = Firestore.firestore()
@@ -68,11 +79,17 @@ public class UserData : Codable {
             from: userData,
             completion: { error in
                 if let error = error {
-                    cloudData = previousCloudData
-                    return completion(error)
+                    DispatchQueue.main.async {
+                        cloudData = previousCloudData
+                    }
+                    print("Failed to send UserData to cloud.");
+                    completion?(error)
+                    return
                 }
                 else {
-                    return completion(nil)
+                    print("Sent UserData to cloud.");
+                    completion?(nil)
+                    return
                 }
             })
     }
@@ -113,7 +130,7 @@ public class UserData : Codable {
     }
     
     public func clone() -> UserData {
-        var result = UserData()
+        let result = UserData()
         result.tasks = self.tasks.map { task in task.clone() }
         return result;
     }

@@ -11,47 +11,58 @@ import FirebaseAuth
 import FirebaseFirestore
 
 public class TaskDetailsScreenView
-    : UIViewController,
-    UITableViewDelegate,
-    UITableViewDataSource {
+    : UITableViewController,
+    UIBoxedValueReceiver,
+    UIBoxedValueResponder {
     
-    public static let VIEW_ID = "TaskDetailsScreen"
-    
-    @IBOutlet private var taskListContainer: UITableView!
+    public static let VIEW_ID = "TaskDetails"
     
     public var userData: UserData? = nil
-    public var refreshParentDisplay: (() -> ())? = nil
+    public var currentTask: CalendarTask? = nil
     
-    @IBAction private func doNewTask() {
-        super.navigationController!.pushViewController(
-            storyboard!.instantiateViewController(
-                withIdentifier: TaskListScreenView.VIEW_ID),
-            animated: true)
+    @IBAction private func doCancel() {
+        self.navigationController!.popViewController(animated: true)
+    }
+
+    @IBAction private func doDone() {
+        self.navigationController!.popViewController(animated: true)
+        responseCallback!(currentTask)
+    }
+    
+    @IBAction private func doDelete() {
+        self.navigationController!.popViewController(animated: true)
+        responseCallback!(false)
     }
     
     public override func viewDidLoad() {
 
         super.viewDidLoad()
         
-        self.taskListContainer.dataSource = self;
-        self.taskListContainer.delegate = self;
-        
-        if self.userData == nil {
-            if let cloudData = UserData.cloudData {
-                self.userData = cloudData
-            }
-            else {
-                UserData.cloudGet(completion: either { cloudData in
-                    self.userData = cloudData
-                }
-                or: { error in
-                    print(error)
-                })
-            }
+        self.tableView.dataSource = self;
+        self.tableView.delegate = self;
+    }
+    
+    func send(boxed value: Any) -> ()? {
+        switch value {
+        case let value as UserData:
+            userData = value
+            return ()
+        case let value as CalendarTask:
+            currentTask = value
+            return ()
+        default:
+            return nil
         }
     }
     
-    public func tableView(
+    private var responseCallback: ((Any?) -> ())? = nil
+
+    func listenFor(boxed callback: @escaping (Any?) -> ()) -> ()? {
+        self.responseCallback = callback
+        return ()
+    }
+    
+    public override func tableView(
         _ tableView: UITableView,
         trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
     ) -> UISwipeActionsConfiguration? {
@@ -63,88 +74,115 @@ public class TaskDetailsScreenView
                     self.userData!.tasks.remove(at: indexPath.row)
                     tableView.deleteRows(at: [indexPath], with: .automatic)
                     completion(true)
-                    self.refreshParentDisplay?()
                 })
         ])
     }
     
-    public func tableView(
-        _ tableView: UITableView,
-        commit editingStyle: UITableViewCell.EditingStyle,
-        forRowAt indexPath: IndexPath
-    ) {
-        switch indexPath.section {
-        case 0:
-            switch editingStyle {
-            case .delete:
-
-                let index = indexPath.row
-                
-                let auth = Auth.auth()
-                
-                let firestore = Firestore.firestore()
-                let userDocumentReference = firestore.document(
-                    "users/\(auth.currentUser!.uid)")
-                
-                do {
-                    try userDocumentReference.setData(
-                        from: userData!,
-                        completion: either { error in
-                            print(error)
-                        }
-                        or: { })
-                }
-                catch {
-                    print(error)
-                }
-                
-                break
-
-            default:
-                break
-            }
-        default:
-            break
-        }
+    public override func numberOfSections(in tableView: UITableView) -> Int {
+        guard let currentTask = self.currentTask else { return 0 }
+        guard let attributes = currentTask.attributes else { return 1 + 1 }
+        return 1 + attributes.count + 1
     }
     
-    public func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-    
-    public func tableView(
+    public override func tableView(
         _ tableView: UITableView,
         numberOfRowsInSection section: Int
     ) -> Int {
-        guard let userData = self.userData else { return 0 }
-        return userData.tasks.count
+        if section == 0 {
+            return 2
+        }
+        else if section == 1 + (currentTask!.attributes?.count ?? 0) {
+            return 1
+        }
+        else {
+            return 0
+        }
     }
     
-    public func tableView(
+    public override func tableView(
         _ tableView: UITableView,
         cellForRowAt indexPath: IndexPath
     ) -> UITableViewCell {
-
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        var configuration = cell.defaultContentConfiguration()
-        
-        guard let userData = self.userData,
-              let task = userData.tasks[safe: indexPath.row],
-              indexPath.section == 0
-        else {
-            return tableView.dequeueReusableCell(withIdentifier: "invalid", for: indexPath)
-        }
-        
-        configuration.text = task.title
-        var secondaryText = task.description
-        task.attributes?.forEach { attribute in
-            if secondaryText.count > 0 {
-                secondaryText += "\n"
+        if indexPath.section == 0 {
+            switch indexPath.row {
+            case 0:
+                let cell = tableView.dequeueReusableCell(
+                    withIdentifier: "TextField",
+                    for: indexPath) as! TextInputTableCell
+                cell.labelText = "Title"
+                cell.value = currentTask!.title
+                return cell
+            case 1:
+                let cell = tableView.dequeueReusableCell(
+                    withIdentifier: "TextField",
+                    for: indexPath) as! TextInputTableCell
+                cell.labelText = "Description"
+                cell.value = currentTask!.description
+                return cell
+            default:
+                preconditionFailure()
             }
-            secondaryText += String(describing: attribute)
         }
-        configuration.secondaryText = secondaryText
-        cell.contentConfiguration = configuration
-        return cell
+        else if indexPath.section == 1 + (currentTask!.attributes?.count ?? 0) {
+            return tableView.dequeueReusableCell(
+                withIdentifier: "DeleteButton",
+                for: indexPath)
+        }
+        else {
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: "TextField",
+                for: indexPath) as! TextInputTableCell
+            return cell
+        }
+    }
+    
+    public override func tableView(
+        _ tableView: UITableView,
+        didSelectRowAt indexPath: IndexPath) {
+        if indexPath.section == 0 {
+            switch indexPath.row {
+            case 0:
+                let newController = storyboard!.instantiateViewController(
+                    withIdentifier: TextInputPage.VIEW_ID) as! TextInputPage
+                newController.navigationItem.title = "Title"
+                newController.send(value: self.currentTask!.title)
+                newController.listenFor(completion: {
+                    guard let text = $0 else { return }
+                    self.currentTask!.title = text ?? "Unnamed Task"
+                    super.tableView.reloadData()
+                    super.navigationController!.popToViewController(self, animated: true)
+                })
+                super.navigationController!.pushViewController(
+                    newController,
+                    animated: true)
+                break
+                
+            case 1:
+                let newController = storyboard!.instantiateViewController(
+                    withIdentifier: TextInputPage.VIEW_ID) as! TextInputPage
+                newController.navigationItem.title = "Description"
+                newController.send(value: self.currentTask!.description)
+                newController.listenFor(completion: {
+                    guard let text = $0 else { return }
+                    self.currentTask!.description = text ?? ""
+                    super.tableView.reloadData()
+                    super.navigationController!.popToViewController(self, animated: true)
+                })
+                super.navigationController!.pushViewController(
+                    newController,
+                    animated: true)
+                break
+
+            default:
+                preconditionFailure()
+            }
+        }
+        else if indexPath.section == 1 + (currentTask!.attributes?.count ?? 0) {
+            responseCallback!(false)
+            super.navigationController!.popViewController(animated: true)
+        }
+        else {
+            
+        }
     }
 }
