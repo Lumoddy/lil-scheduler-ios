@@ -1,46 +1,60 @@
 //
-//  UIValueResponder.swift
+//  UIValueReceiver.swift
 //  Lil' Scheduler
 //
-//  Created by 13878 on 1/8/2025.
+//  Created by 13878 on 5/8/2025.
 //
 
 import UIKit
 
-protocol UIBoxedValueReceiver : UIViewController {
+protocol UIValueReceiver : UIResponder {
     
-    func send(boxed value: Any) -> ()?
+    func send<Key : CodingKey>(
+        _ value: Any,
+        forKey key: Key) -> ()?
 }
 
-protocol UIValueReceiver<Value> : UIViewController, UIBoxedValueReceiver {
+struct UIValueReceiverHandler<Key : CodingKey & Hashable> : ~Copyable {
     
-    associatedtype Value
+    private var _storedValues: [Key : Any] = [:]
     
-    func send(value: Value) -> ()?
-}
-
-extension UIValueReceiver {
-    
-    func send(boxed value: Any) -> ()? {
-        if let value = value as? Value {
-            return self.send(value: value)
+    public mutating func handleSend<OtherKey : CodingKey>(
+        _ value: Any,
+        forKey key: OtherKey
+    ) -> ()? {
+        let convertedKey: Key
+        if let key = key as? Key {
+            convertedKey = key
+        }
+        else if
+            let intValue = key.intValue,
+            let key = Key(intValue: intValue) {
+            convertedKey = key
+        }
+        else if
+            let key = Key(stringValue: key.stringValue) {
+            convertedKey = key
         }
         else {
             return nil
         }
+        self._storedValues[convertedKey] = value
+        return ()
+    }
+    
+    public func get<Value>(_ type: Value.Type, forKey key: Key) -> Value? {
+        return self._storedValues[key] as? Value
     }
 }
 
 extension UIViewController {
     
-    public func sendIfReceiver<T>(value: T) -> ()? {
-        switch self {
-        case let self as any UIValueReceiver<T> :
-            return self.send(value: value)
-        case let self as any UIBoxedValueReceiver :
-            return self.send(boxed: value)
-        default:
-            return nil
-        }
+    func sendIfReceiver<Key : CodingKey>(
+        _ value: Any,
+        forKey key: Key
+    ) -> ()? {
+        return (self as? UIValueReceiver)?.send(
+            value,
+            forKey: key)
     }
 }

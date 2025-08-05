@@ -20,7 +20,7 @@ extension Result {
             break
         case (nil, nil):
             preconditionFailure(
-                "either() was called with two nil values. At least one " +
+                "Result(_:or:) was called with two nil values. At least one " +
                 "parameter has to be non-nil.")
         }
     }

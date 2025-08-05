@@ -10,7 +10,7 @@ import FirebaseFirestore
 
 public class UserData : Codable {
     
-    public var tasks: [CalendarTask];
+    public var tasks: [TaskDescription];
     
     public init() {
         self.tasks = []
@@ -120,7 +120,7 @@ public class UserData : Codable {
     public required init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: _Key.self)
         self.tasks = try container.decode(
-            [CalendarTask].self,
+            [TaskDescription].self,
             forKey: _Key.tasks)
     }
     

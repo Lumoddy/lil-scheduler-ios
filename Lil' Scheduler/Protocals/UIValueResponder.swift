@@ -2,46 +2,97 @@
 //  UIValueResponder.swift
 //  Lil' Scheduler
 //
-//  Created by 13878 on 1/8/2025.
+//  Created by 13878 on 5/8/2025.
 //
 
 import UIKit
 
-protocol UIBoxedValueResponder : UIViewController {
+struct UIValueResponderDefaultResultKey : CodingKey, Hashable {
     
-    func listenFor(boxed callback: @escaping (Any?) -> ()) -> ()?
+    public static let stringValue = "value"
+    public static let intValue = 0
+
+    public init() { }
+    
+    public var stringValue: String { UIValueResponderDefaultResultKey.stringValue }
+    
+    public init?(stringValue: String) {
+        if stringValue == UIValueResponderDefaultResultKey.stringValue {
+            self.init()
+        }
+        else {
+            return nil
+        }
+    }
+    
+    public var intValue: Int? { UIValueResponderDefaultResultKey.intValue }
+    
+    public init?(intValue: Int) {
+        if intValue == UIValueResponderDefaultResultKey.intValue {
+            self.init()
+        }
+        else {
+            return nil
+        }
+    }
 }
 
-protocol UIValueResponder<Value> : UIViewController, UIBoxedValueResponder {
+protocol UIValueResponder : UIResponder {
     
-    associatedtype Value
-    
-    func listenFor(completion callback: @escaping (Value?) -> ()) -> ()?
+    func listen<Key : CodingKey, Value>(
+        forKey key: Key,
+        listener: @escaping (Value) -> ()) -> ()?
 }
 
-extension UIValueResponder {
+struct UIValueResponderHandler<Key : CodingKey & Hashable> : ~Copyable {
     
-    func listenFor(boxed callback: @escaping (Any?) -> ()) -> ()? {
-        return self.listenFor(completion: { callback($0) })
+    private var _stored: [Key : (Any) -> ()?] = [:]
+    
+    public mutating func handleListen<OtherKey : CodingKey, Value>(
+        forKey key: OtherKey,
+        listener: @escaping (Value) -> ()
+    ) -> ()? {
+        let convertedKey: Key
+        if let key = key as? Key {
+            convertedKey = key
+        }
+        else if
+            let intValue = key.intValue,
+            let key = Key(intValue: intValue) {
+            convertedKey = key
+        }
+        else if
+            let key = Key(stringValue: key.stringValue) {
+            convertedKey = key
+        }
+        else {
+            return nil
+        }
+        self._stored[convertedKey] = { value in
+            if let value = value as? Value {
+                listener(value)
+                return ()
+            }
+            else {
+                return nil
+            }
+        }
+        return ()
+    }
+    
+    public func respond<Value>(forKey key: Key, with value: Value) -> ()? {
+        return self._stored[key]?(value)
     }
 }
 
 extension UIViewController {
     
-    public func listenIfResponderFor<T>(
-        completion callback: @escaping (T?) -> ()
+    func listenIfResponder<Key : CodingKey, Value>(
+        forKey key: Key,
+        listener: @escaping (Value) -> ()
     ) -> ()? {
-        switch self {
-        case let self as any UIValueResponder<T> :
-            return self.listenFor(completion: callback)
-        case let self as any UIBoxedValueResponder :
-            return self.listenFor {
-                if let value = $0 as? T {
-                    callback(value)
-                }
-            }
-        default:
-            return nil
-        }
+        return (self as? UIValueResponder)?.listen(
+            forKey: key,
+            listener: listener)
     }
 }

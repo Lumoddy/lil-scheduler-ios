@@ -1,13 +1,11 @@
 //
-//  CalenderTask.swift
+//  TaskDescription.swift
 //  Lil' Scheduler
 //
-//  Created by 13878 on 25/7/2025.
+//  Created by 13878 on 5/8/2025.
 //
 
-import SwiftUICore
-
-public final class CalendarTask : Codable {
+public final class TaskDescription : Codable {
     
     private enum _Key: CodingKey {
         
@@ -84,7 +82,7 @@ public final class CalendarTask : Codable {
         else {
             guard let parsedColor = RGB(fromHex: encodedColor) else {
                 throw DecodingError.typeMismatch(
-                    CalendarTask.self,
+                    TaskDescription.self,
                     DecodingError.Context.init(
                         codingPath: container.codingPath,
                         debugDescription: "Failed to parse color."))
@@ -114,8 +112,8 @@ public final class CalendarTask : Codable {
         }
     }
     
-    public func clone() -> CalendarTask {
-        return CalendarTask(
+    public func clone() -> TaskDescription {
+        return TaskDescription(
             title: self.title,
             description: self.description,
             color: self.color,

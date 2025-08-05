@@ -122,24 +122,30 @@ extension RangeReplaceableCollection where Index : BinaryInteger {
         _ newElement: Element,
         by areInIncreasingOrder: (Element, Element) throws -> Bool
     ) rethrows {
-        var lower = self.startIndex
-        var upper = self.endIndex
+        var start = self.startIndex
+        var end = self.endIndex
         while true {
-            if lower == upper {
-                self.insert(newElement, at: upper)
-                return
-            }
-            else if lower > upper {
-                return assertionFailure(
-                    "orderedInsert() encountered an invalid state. Check " +
-                    "the comparison function to make sure it's consistent.")
-            }
-            let middle = (lower + upper - 1) / 2
-            if try areInIncreasingOrder(newElement, self[middle]) {
-                upper = middle
-            }
-            else {
-                lower = middle + 1
+            switch start {
+            case end - 1 where try areInIncreasingOrder(newElement, self[start]):
+                return self.insert(newElement, at: start)
+            case end - 1:
+                return self.insert(newElement, at: end)
+            case end:
+                return self.insert(newElement, at: end)
+            case end...:
+                preconditionFailure(
+                    "orderedInsert() encountered an invalid state. " +
+                    "Check the comparison function to make sure it's " +
+                    "consistent.")
+            default:
+                let middle = (start + end - 1) / 2
+                if try areInIncreasingOrder(newElement, self[start]) {
+                    start = middle + 1
+                }
+                else {
+                    end = middle
+                }
+                continue
             }
         }
     }
@@ -166,34 +172,33 @@ extension RangeReplaceableCollection where Index : BinaryInteger {
     ///         })
     ///
     public func orderedFirstIndex(
-        whereElementIs comparer: (Element) throws -> ComparisonResult
+        where comparer: (Element) throws -> ComparisonResult
     ) rethrows -> Self.Index? {
-        var lower = self.startIndex
-        var upper = self.endIndex
+        var start = self.startIndex
+        var end = self.endIndex
         while true {
-            if lower == upper {
-                if try comparer(self[lower]) == .orderedSame {
-                    return lower
-                }
-                else {
-                    return nil
-                }
-            }
-            else if lower > upper {
-                assertionFailure(
-                    "orderedInsert() encountered an invalid state. Check " +
-                    "the comparison function to make sure it's " +
-                    "consistent.")
+            switch start {
+            case end - 1 where try comparer(self[start]) == .orderedSame:
+                return start
+            case end - 1:
                 return nil
-            }
-            let middle = (lower + upper - 1) / 2
-            switch try comparer(self[middle]) {
-            case .orderedSame, .orderedAscending:
-                upper = middle
-                break
-            case .orderedDescending:
-                lower = middle + 1
-                break
+            case end:
+                return nil
+            case end...:
+                preconditionFailure(
+                    "orderedFirstIndex() encountered an invalid state. " +
+                    "Check the comparison function to make sure it's " +
+                    "consistent.")
+            default:
+                let middle = (start + end - 1) / 2
+                switch try comparer(self[middle]) {
+                case .orderedSame, .orderedAscending:
+                    end = middle
+                    continue
+                case .orderedDescending:
+                    start = middle + 1
+                    continue
+                }
             }
         }
     }
@@ -220,31 +225,33 @@ extension RangeReplaceableCollection where Index : BinaryInteger {
     ///         })
     ///
     public func orderedContains(
-        whereElementIs comparer: (Element) throws -> ComparisonResult
+        where comparer: (Element) throws -> ComparisonResult
     ) rethrows -> Bool {
-        var lower = self.startIndex
-        var upper = self.endIndex
+        var start = self.startIndex
+        var end = self.endIndex
         while true {
-            if lower == upper {
-                return try comparer(self[lower]) == .orderedSame
-            }
-            else if lower > upper {
-                assertionFailure(
-                    "orderedInsert() encountered an invalid state. Check " +
+            switch start {
+            case end - 1:
+                return try comparer(self[start]) == .orderedSame
+            case end:
+                return false
+            case end...:
+                preconditionFailure(
+                    "orderedContains() encountered an invalid state. Check " +
                     "the comparison function to make sure it's " +
                     "consistent.")
-                return false
-            }
-            let middle = (lower + upper - 1) / 2
-            switch try comparer(self[middle]) {
-            case .orderedSame:
-                return true
-            case .orderedAscending:
-                upper = middle
-                break
-            case .orderedDescending:
-                lower = middle + 1
-                break
+            default:
+                let middle = (start + end - 1) / 2
+                switch try comparer(self[middle]) {
+                case .orderedSame:
+                    return true
+                case .orderedAscending:
+                    end = middle
+                    continue
+                case .orderedDescending:
+                    start = middle + 1
+                    continue
+                }
             }
         }
     }
@@ -271,9 +278,9 @@ extension RangeReplaceableCollection where Index : BinaryInteger {
     ///         })
     ///
     public mutating func orderedRemoveFirst(
-        whereElementIs comparer: (Element) throws -> ComparisonResult
+        where comparer: (Element) throws -> ComparisonResult
     ) rethrows -> ()? {
-        guard let index = try orderedFirstIndex(whereElementIs: comparer) else {
+        guard let index = try orderedFirstIndex(where: comparer) else {
             return nil
         }
         self.remove(at: index)
@@ -302,9 +309,9 @@ extension RangeReplaceableCollection where Index : BinaryInteger {
     ///         })
     ///
     public mutating func orderedTakeFirst(
-        whereElementIs comparer: (Element) throws -> ComparisonResult
+        where comparer: (Element) throws -> ComparisonResult
     ) rethrows -> Element? {
-        guard let index = try orderedFirstIndex(whereElementIs: comparer) else {
+        guard let index = try orderedFirstIndex(where: comparer) else {
             return nil
         }
         return self.take(at: index)!
@@ -363,18 +370,30 @@ extension RangeReplaceableCollection
     public func orderedFirstIndex(
         of element: Self.Element
     ) -> Self.Index? {
-        return orderedFirstIndex(whereElementIs: {
-            return $0 == element ? .orderedSame :
-                $0 < element ? .orderedAscending :
-                .orderedDescending
+        return orderedFirstIndex(where: {
+            if $0 == element {
+                return .orderedSame
+            }
+            else if $0 < element {
+                return .orderedAscending
+            }
+            else {
+                return .orderedDescending
+            }
         })
     }
     
     public func orderedContains(element: Element) -> Bool {
-        return orderedContains(whereElementIs: {
-            return $0 == element ? .orderedSame :
-                $0 < element ? .orderedAscending :
-                .orderedDescending
+        return orderedContains(where: {
+            if $0 == element {
+                return .orderedSame
+            }
+            else if $0 < element {
+                return .orderedAscending
+            }
+            else {
+                return .orderedDescending
+            }
         })
     }
 }
