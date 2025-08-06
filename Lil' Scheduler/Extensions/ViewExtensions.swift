@@ -19,3 +19,23 @@ extension UIResponder {
         }
     }
 }
+
+extension UINavigationController {
+    
+    @discardableResult
+    public func popToBeforeViewController(
+        _ viewController: UIViewController,
+        animated: Bool
+    ) -> [UIViewController]? {
+        let viewControllers = self.viewControllers
+        guard
+            let selfIndex = viewControllers.lastIndex(of: viewController)
+        else {
+            return nil
+        }
+        self.setViewControllers(
+            Array(viewControllers[..<selfIndex]),
+            animated: animated)
+        return Array(viewControllers[selfIndex...])
+    }
+}

@@ -10,7 +10,11 @@ import UIKit
 struct UIValueResponderDefaultResultKey : CodingKey, Hashable {
     
     public static let stringValue = "value"
-    public static let intValue = 0
+    public static let intValue = {
+        var hasher = Hasher()
+        stringValue.hash(into: &hasher)
+        return hasher.finalize()
+    }()
 
     public init() { }
     
@@ -42,6 +46,16 @@ protocol UIValueResponder : UIResponder {
     func listen<Key : CodingKey, Value>(
         forKey key: Key,
         listener: @escaping (Value) -> ()) -> ()?
+}
+
+extension UIValueResponder {
+    
+    func listen<Key : CodingKey>(
+        forKey key: Key,
+        listener: @escaping () -> ()
+    ) -> ()? {
+        self.listen(forKey: key, listener: { (_: ()) in listener() })
+    }
 }
 
 struct UIValueResponderHandler<Key : CodingKey & Hashable> : ~Copyable {

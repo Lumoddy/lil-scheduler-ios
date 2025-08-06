@@ -1,0 +1,548 @@
+//
+//  TextFieldPage.swift
+//  Lil' Scheduler
+//
+//  Created by 13878 on 5/8/2025.
+//
+
+import UIKit
+
+public class SelectionFieldPageTableViewCell
+    : UITableViewCell,
+    UIValueResponder {
+    
+    public class Section {
+        
+        public let header: String?
+        public let footer: String?
+        public let rows: [Option]
+        
+        public init(
+            header: String? = nil,
+            rows: [Option],
+            footer: String? = nil
+        ) {
+            self.header = header
+            self.rows = rows
+            self.footer = footer
+        }
+    }
+    
+    public enum Option {
+        case value(label: String)
+        case inner(label: String, content: [Section])
+    }
+    
+    private var _titleBuffer: String?? = nil
+    private var _valueBuffer: IndexPath?? = nil
+    private var _selectionsBuffer: [Section]?? = nil
+    private var _recentPage: SelectionFieldPageViewController? = nil
+    
+    public func instantiatePageView() -> UIViewController {
+
+        let result = self.viewController!
+            .storyboard!
+            .instantiateViewController(
+                withIdentifier: "SelectionFieldPage")
+            as! SelectionFieldPageViewController
+
+        result.listen(
+            forKey: UIValueResponderDefaultResultKey()
+        ) { (value: IndexPath) in
+            self._listener?(value)
+        }
+        
+        result.listen(
+            forKey: SelectionFieldPageViewController.ReturnKey()
+        ) {
+            let viewController = self.viewController!
+            viewController.navigationController!.popToViewController(
+                viewController,
+                animated: true)
+        }
+
+        self._recentPage = result
+
+        if let text = self._titleBuffer {
+            result.title = text
+        }
+        if let value = self._selectionsBuffer {
+            result.selections = value
+        }
+        if let value = self._valueBuffer {
+            result.value = value
+        }
+
+        return result
+    }
+    
+    private var _listener: ((IndexPath) -> ())? = nil
+    
+    func listen<Key : CodingKey, Value>(
+        forKey key: Key,
+        listener: @escaping (Value) -> ()
+    ) -> ()? {
+        switch key.stringValue {
+        case UIValueResponderDefaultResultKey.stringValue:
+            if let listener = listener as? (IndexPath) -> () {
+                self._listener = { value in
+                    listener(value)
+                    if let value = self.value {
+                        self._preview.text = self.selections?.label(at: value)
+                    }
+                    else {
+                        self._preview.text = nil
+                    }
+                }
+            }
+            else {
+                self._listener = nil
+            }
+            return ()
+        default:
+            return nil
+        }
+    }
+    
+    public override func prepareForReuse() {
+        self._listener = nil
+        self._titleBuffer = nil
+        self._valueBuffer = nil
+        self._selectionsBuffer = nil
+        self._recentPage = nil
+        self._label.text = nil
+        self._preview.text = nil
+    }
+    
+    @IBOutlet private var _label: UILabel!
+    @IBOutlet private var _preview: UILabel!
+    
+    public var title: String? {
+        get {
+            if let recentPage = self._recentPage {
+                return recentPage.title
+            }
+            else {
+                return self._titleBuffer ?? nil
+            }
+        }
+        set {
+            if let recentPage = self._recentPage {
+                recentPage.title = newValue
+            }
+            else {
+                self._titleBuffer = newValue
+            }
+        }
+    }
+    
+    public var selections: [Section]? {
+        get {
+            if let recentPage = self._recentPage {
+                return recentPage.selections
+            }
+            else {
+                return self._selectionsBuffer ?? nil
+            }
+        }
+        set {
+            if let recentPage = self._recentPage {
+                recentPage.selections = newValue
+            }
+            else {
+                self._selectionsBuffer = newValue
+            }
+            if let value = self.value {
+                self._preview.text = newValue?.label(at: value)
+            }
+            else {
+                self._preview.text = nil
+            }
+        }
+    }
+    
+    public var value: IndexPath? {
+        get {
+            if let recentPage = self._recentPage {
+                return recentPage.value
+            }
+            else {
+                return self._valueBuffer ?? nil
+            }
+        }
+        set {
+            if let recentPage = self._recentPage {
+                recentPage.value = newValue
+            }
+            else {
+                self._valueBuffer = newValue
+            }
+            if let newValue = newValue {
+                self._preview.text = self.selections?.label(at: newValue)
+            }
+            else {
+                self._preview.text = nil
+            }
+        }
+    }
+    
+    public var label: String? {
+        get { return self._label.text }
+        set { self._label.text = newValue }
+    }
+}
+
+extension [SelectionFieldPageTableViewCell.Section] {
+    
+    public func label(at: IndexPath) -> String? {
+        var iterator = at.makeIterator()
+        guard
+            let section = iterator.next(),
+            let row = iterator.next(),
+            let next = self[safe: section]?.rows[safe: row]
+        else {
+            return nil
+        }
+        var current = next
+        while true {
+            switch current {
+            case .inner(let label, let sections):
+                guard let section = iterator.next() else {
+                    return label
+                }
+                guard
+                    let row = iterator.next(),
+                    let next = sections[safe: section]?.rows[safe: row]
+                else {
+                    return nil
+                }
+                current = next
+                continue
+            case .value(let label):
+                if iterator.next() != nil {
+                    return nil
+                }
+                return label
+            }
+        }
+    }
+}
+
+public class SelectionFieldPageViewController
+    : UITableViewController,
+    UIValueResponder {
+    
+    struct ReturnKey : CodingKey, Hashable {
+        
+        public static let stringValue = "return"
+        public static let intValue = {
+            var hasher = Hasher()
+            stringValue.hash(into: &hasher)
+            return hasher.finalize()
+        }()
+
+        public init() { }
+        
+        public var stringValue: String { ReturnKey.stringValue }
+        
+        public init?(stringValue: String) {
+            if stringValue == ReturnKey.stringValue {
+                self.init()
+            }
+            else {
+                return nil
+            }
+        }
+        
+        public var intValue: Int? { ReturnKey.intValue }
+        
+        public init?(intValue: Int) {
+            if intValue == ReturnKey.intValue {
+                self.init()
+            }
+            else {
+                return nil
+            }
+        }
+    }
+    
+    private var _isTransitioningBack = false
+    private var _returnAction: (() -> ())? = nil
+    private var _listener: ((IndexPath) -> ())? = nil
+    
+    func listen<Key : CodingKey, Value>(
+        forKey key: Key,
+        listener: @escaping (Value) -> ()
+    ) -> ()? {
+        switch key.stringValue {
+        case UIValueResponderDefaultResultKey.stringValue:
+            self._listener = listener as? (IndexPath) -> ()
+            return ()
+        case ReturnKey.stringValue:
+            if let listener = listener as? (()) -> () {
+                self._returnAction = { listener(()) }
+            }
+            return ()
+        default:
+            return nil
+        }
+    }
+    
+    private var _path: IndexPath? = nil
+    private var _placeholderBuffer: String?? = nil
+    private var _value: IndexPath? = nil
+    private var _selections: [SelectionFieldPageTableViewCell.Section]? = nil
+    
+    public var path: IndexPath? {
+        get { return self._path }
+        set { self._path = newValue }
+    }
+    
+    public override var title: String? {
+        get { return self.navigationItem.title }
+        set { self.navigationItem.title = newValue }
+    }
+    
+    public var selections: [SelectionFieldPageTableViewCell.Section]? {
+        get { return self._selections }
+        set {
+            self._selections = newValue
+            self.tableView.reloadData()
+        }
+    }
+    
+    public var value: IndexPath? {
+        get { return self._value }
+        set {
+            self._value = newValue
+            self.tableView.reloadData()
+        }
+    }
+    
+    @IBAction private func _onCancel() {
+        if self._isTransitioningBack { return }
+        self._returnAction!()
+        self._isTransitioningBack = true
+    }
+    
+    public override func numberOfSections(
+        in tableView: UITableView
+    ) -> Int {
+        return self._selections?.count ?? 0
+    }
+    
+    public override func tableView(
+        _ tableView: UITableView,
+        titleForHeaderInSection section: Int
+    ) -> String? {
+        return self._selections?[section].header
+    }
+
+    public override func tableView(
+        _ tableView: UITableView,
+        titleForFooterInSection section: Int
+    ) -> String? {
+        return self._selections?[section].footer
+    }
+    
+    public override func tableView(
+        _ tableView: UITableView,
+        numberOfRowsInSection section: Int
+    ) -> Int {
+        return self._selections![section].rows.count
+    }
+    
+    public override func tableView(
+        _ tableView: UITableView,
+        cellForRowAt indexPath: IndexPath
+    ) -> UITableViewCell {
+        switch self._selections?[indexPath[0]].rows[indexPath[1]] {
+        case nil:
+            preconditionFailure()
+        case .value(let label):
+            let cell = tableView.dequeueReusableCell(
+                    withIdentifier: "Value",
+                    for: indexPath)
+                as! SelectionFieldPageViewControllerValueTableViewCell
+            cell.label = label
+            return cell
+        case .inner(let label, let sections):
+            let cell = tableView.dequeueReusableCell(
+                    withIdentifier: "Inner",
+                    for: indexPath)
+                as! SelectionFieldPageViewControllerInnerTableViewCell
+            cell.label = label
+            cell.value = self.value?[2...]
+            cell.path = (self._path ?? []).appending(indexPath)
+            cell.selections = sections
+            cell.listen(
+                forKey: UIValueResponderDefaultResultKey(),
+                listener: self._listener!)
+            cell.listen(
+                forKey: SelectionFieldPageViewController.ReturnKey(),
+                listener: self._returnAction!)
+            return cell
+        }
+    }
+    
+    public override func tableView(
+        _ tableView: UITableView,
+        didSelectRowAt indexPath: IndexPath
+    ) {
+        switch self._selections?[indexPath[0]].rows[indexPath[1]] {
+        case nil:
+            preconditionFailure()
+        case .value(_):
+            self._listener!(indexPath)
+            self._returnAction!()
+            break
+        case .inner(_, _):
+            let cell = tableView
+                .cellForRow(at: indexPath)
+                as! SelectionFieldPageViewControllerInnerTableViewCell
+            self.navigationController!.pushViewController(
+                cell.instantiatePageView(),
+                animated: true)
+            break
+        }
+    }
+}
+
+public class SelectionFieldPageViewControllerValueTableViewCell
+    : UITableViewCell {
+    
+    public override func prepareForReuse() {
+        self._label.text = nil
+    }
+    
+    @IBOutlet private var _label: UILabel!
+    
+    public var label: String? {
+        get { return self._label.text }
+        set { self._label.text = newValue }
+    }
+}
+
+public class SelectionFieldPageViewControllerInnerTableViewCell
+    : UITableViewCell,
+    UIValueResponder {
+    
+    private var _path: IndexPath? = nil
+    private var _valueBuffer: IndexPath?? = nil
+    private var _selectionsBuffer: [SelectionFieldPageTableViewCell.Section]??
+        = nil
+    private var _recentPage: SelectionFieldPageViewController? = nil
+    
+    public func instantiatePageView() -> UIViewController {
+
+        let result = self.viewController!
+            .storyboard!
+            .instantiateViewController(
+                withIdentifier: "InnerSelectionFieldPage")
+            as! SelectionFieldPageViewController
+
+        result.listen(
+            forKey: UIValueResponderDefaultResultKey(),
+            listener: { (value: IndexPath) in
+                self._listener!(self._path!.appending(value))
+            })
+        
+        result.listen(
+            forKey: SelectionFieldPageViewController.ReturnKey(),
+            listener: self._returnAction!)
+
+        self._recentPage = result
+
+        if let value = self._valueBuffer {
+            result.value = value
+        }
+        if let value = self._selectionsBuffer {
+            result.selections = value
+        }
+        result.title = self.label
+
+        return result
+    }
+    
+    private var _returnAction: (() -> ())? = nil
+    private var _listener: ((IndexPath) -> ())? = nil
+    
+    func listen<Key : CodingKey, Value>(
+        forKey key: Key,
+        listener: @escaping (Value) -> ()
+    ) -> ()? {
+        switch key.stringValue {
+        case UIValueResponderDefaultResultKey.stringValue:
+            self._listener = listener as? (IndexPath) -> ()
+            return ()
+        case SelectionFieldPageViewController.ReturnKey.stringValue:
+            if let listener = listener as? (()) -> () {
+                self._returnAction = { listener(()) }
+            }
+            return ()
+        default:
+            return nil
+        }
+    }
+    
+    public override func prepareForReuse() {
+        self._listener = nil
+        self._valueBuffer = nil
+        self._selectionsBuffer = nil
+        self._recentPage = nil
+        self._label.text = nil
+    }
+    
+    @IBOutlet private var _label: UILabel!
+    
+    public var path: IndexPath? {
+        get { return self._path }
+        set { self._path = newValue }
+    }
+    
+    public var selections: [SelectionFieldPageTableViewCell.Section]? {
+        get {
+            if let recentPage = self._recentPage {
+                return recentPage.selections
+            }
+            else {
+                return self._selectionsBuffer ?? nil
+            }
+        }
+        set {
+            if let recentPage = self._recentPage {
+                recentPage.selections = newValue
+            }
+            else {
+                self._selectionsBuffer = newValue
+            }
+        }
+    }
+    
+    public var value: IndexPath? {
+        get {
+            if let recentPage = self._recentPage {
+                return recentPage.value
+            }
+            else {
+                return self._valueBuffer ?? nil
+            }
+        }
+        set {
+            if let recentPage = self._recentPage {
+                recentPage.value = newValue
+            }
+            else {
+                self._valueBuffer = newValue
+            }
+        }
+    }
+    
+    public var label: String? {
+        get { return self._label.text }
+        set {
+            self._label.text = newValue
+            self._recentPage?.navigationItem.title = newValue
+        }
+    }
+}

@@ -29,6 +29,15 @@ public class TextFieldPageTableViewCell
         ) { (value: String) in
             self._listener?(value)
         }
+        
+        result.listen(
+            forKey: TextFieldPageViewController.ReturnKey()
+        ) { (_: ()) in
+            let viewController = self.viewController!
+            viewController.navigationController!.popToViewController(
+                viewController,
+                animated: true)
+        }
 
         self._recentPage = result
 
@@ -81,7 +90,7 @@ public class TextFieldPageTableViewCell
     @IBOutlet private var _label: UILabel!
     @IBOutlet private var _preview: UILabel!
     
-    public var titleText: String? {
+    public var title: String? {
         get {
             if let recentPage = self._recentPage {
                 return recentPage.title
@@ -100,7 +109,7 @@ public class TextFieldPageTableViewCell
         }
     }
     
-    public var placeholderText: String? {
+    public var placeholder: String? {
         get {
             if let recentPage = self._recentPage {
                 return recentPage.placeholder
@@ -119,7 +128,7 @@ public class TextFieldPageTableViewCell
         }
     }
     
-    public var valueText: String? {
+    public var value: String? {
         get {
             if let recentPage = self._recentPage {
                 return recentPage.value
@@ -139,7 +148,7 @@ public class TextFieldPageTableViewCell
         }
     }
     
-    public var labelText: String? {
+    public var label: String? {
         get { return self._label.text }
         set { self._label.text = newValue }
     }
@@ -149,6 +158,42 @@ public class TextFieldPageViewController
     : UITableViewController,
     UIValueResponder {
     
+    struct ReturnKey : CodingKey, Hashable {
+        
+        public static let stringValue = "return"
+        public static let intValue = {
+            var hasher = Hasher()
+            stringValue.hash(into: &hasher)
+            return hasher.finalize()
+        }()
+
+        public init() { }
+        
+        public var stringValue: String { ReturnKey.stringValue }
+        
+        public init?(stringValue: String) {
+            if stringValue == ReturnKey.stringValue {
+                self.init()
+            }
+            else {
+                return nil
+            }
+        }
+        
+        public var intValue: Int? { ReturnKey.intValue }
+        
+        public init?(intValue: Int) {
+            if intValue == ReturnKey.intValue {
+                self.init()
+            }
+            else {
+                return nil
+            }
+        }
+    }
+    
+    private var _isTransitioningBack = false
+    private var _returnAction: (() -> ())? = nil
     private var _listener: ((String) -> ())? = nil
     
     func listen<Key : CodingKey, Value>(
@@ -158,6 +203,11 @@ public class TextFieldPageViewController
         switch key.stringValue {
         case UIValueResponderDefaultResultKey.stringValue:
             self._listener = listener as? (String) -> ()
+            return ()
+        case ReturnKey.stringValue:
+            if let listener = listener as? (()) -> () {
+                self._returnAction = { listener(()) }
+            }
             return ()
         default:
             return nil
@@ -218,12 +268,16 @@ public class TextFieldPageViewController
     }
     
     @IBAction private func _onDone() {
-        self._listener?(_field.text ?? "")
-        self.navigationController!.popViewController(animated: true)
+        if self._isTransitioningBack { return }
+        self._listener?(self._field.text ?? "")
+        self._returnAction!()
+        self._isTransitioningBack = true
     }
 
     @IBAction private func _onCancel() {
-        self.navigationController!.popViewController(animated: true)
+        if self._isTransitioningBack { return }
+        self._returnAction!()
+        self._isTransitioningBack = true
     }
     
     @IBAction private func _onTextChange() { }
