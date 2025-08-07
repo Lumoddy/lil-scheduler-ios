@@ -7,9 +7,16 @@
 
 import UIKit
 
+/// ### Receives:
+/// * `"title"` : `String?`
+/// * `"label"` : `String?`
+/// * `"value"` or nil : `IndexPath?`
+/// ### Responds:
+/// * `"value"` or nil : `String`
 public class SelectionFieldPageTableViewCell
     : UITableViewCell,
-    UIValueResponder {
+    ValueReceiver,
+    ValueResponder {
     
     public class Section {
         
@@ -45,16 +52,14 @@ public class SelectionFieldPageTableViewCell
             .instantiateViewController(
                 withIdentifier: "SelectionFieldPage")
             as! SelectionFieldPageViewController
-
-        result.listen(
-            forKey: UIValueResponderDefaultResultKey()
-        ) { (value: IndexPath) in
-            self._listener?(value)
+        
+        result.listen { (value: IndexPath) in
+            for listener in self._valueListeners {
+                listener(value)
+            }
         }
         
-        result.listen(
-            forKey: SelectionFieldPageViewController.ReturnKey()
-        ) {
+        result.listen(named: "back") { (_: ()) in
             let viewController = self.viewController!
             viewController.navigationController!.popToViewController(
                 viewController,
@@ -76,46 +81,18 @@ public class SelectionFieldPageTableViewCell
         return result
     }
     
-    private var _listener: ((IndexPath) -> ())? = nil
-    
-    func listen<Key : CodingKey, Value>(
-        forKey key: Key,
-        listener: @escaping (Value) -> ()
-    ) -> ()? {
-        switch key.stringValue {
-        case UIValueResponderDefaultResultKey.stringValue:
-            if let listener = listener as? (IndexPath) -> () {
-                self._listener = { value in
-                    listener(value)
-                    if let value = self.value {
-                        self._preview.text = self.selections?.label(at: value)
-                    }
-                    else {
-                        self._preview.text = nil
-                    }
-                }
-            }
-            else {
-                self._listener = nil
-            }
-            return ()
-        default:
-            return nil
-        }
-    }
-    
     public override func prepareForReuse() {
-        self._listener = nil
+        self._valueListeners.removeAll()
         self._titleBuffer = nil
         self._valueBuffer = nil
         self._selectionsBuffer = nil
         self._recentPage = nil
-        self._label.text = nil
-        self._preview.text = nil
+        self._label!.text = nil
+        self._preview!.text = nil
     }
     
-    @IBOutlet private var _label: UILabel!
-    @IBOutlet private var _preview: UILabel!
+    @IBOutlet private var _label: UILabel?
+    @IBOutlet private var _preview: UILabel?
     
     public var title: String? {
         get {
@@ -153,10 +130,10 @@ public class SelectionFieldPageTableViewCell
                 self._selectionsBuffer = newValue
             }
             if let value = self.value {
-                self._preview.text = newValue?.label(at: value)
+                self._preview!.text = newValue?.label(at: value)
             }
             else {
-                self._preview.text = nil
+                self._preview!.text = nil
             }
         }
     }
@@ -178,17 +155,50 @@ public class SelectionFieldPageTableViewCell
                 self._valueBuffer = newValue
             }
             if let newValue = newValue {
-                self._preview.text = self.selections?.label(at: newValue)
+                self._preview!.text = self.selections?.label(at: newValue)
             }
             else {
-                self._preview.text = nil
+                self._preview!.text = nil
             }
         }
     }
     
     public var label: String? {
-        get { return self._label.text }
-        set { self._label.text = newValue }
+        get { return self._label!.text }
+        set { self._label!.text = newValue }
+    }
+    
+    private var _valueListeners: [(IndexPath) -> ()] = []
+    
+    func send<Value>(named label: String?, _ value: Value) -> ()? {
+        switch (label, value) {
+        case ("title", let value as String?):
+            self.title = value
+            return ()
+        case ("label", let value as String?):
+            self.label = value
+            return ()
+        case ("value", let value as IndexPath?),
+            (nil, let value as IndexPath?):
+            self.value = value
+            return ()
+        default:
+            return nil
+        }
+    }
+    
+    func listen<Value>(
+        named label: String?,
+        with listener: @escaping (Value) -> ()
+    ) -> ()? {
+        switch (label, listener) {
+        case ("value", let listener as (IndexPath) -> ()),
+            (nil, let listener as (IndexPath) -> ()):
+            _valueListeners.append(listener)
+            return ()
+        default:
+            return nil
+        }
     }
 }
 
@@ -228,68 +238,19 @@ extension [SelectionFieldPageTableViewCell.Section] {
     }
 }
 
+/// ### Receives:
+/// * `"title"` : `String?`
+/// * `"value"` or nil : `IndexPath?`
+/// ### Responds:
+/// * `"value"` or nil : `IndexPath`
+/// * `"back"` or nil : `()`
+///     * Expects navigation to pop back to calling view controller.
 public class SelectionFieldPageViewController
     : UITableViewController,
-    UIValueResponder {
-    
-    struct ReturnKey : CodingKey, Hashable {
-        
-        public static let stringValue = "return"
-        public static let intValue = {
-            var hasher = Hasher()
-            stringValue.hash(into: &hasher)
-            return hasher.finalize()
-        }()
-
-        public init() { }
-        
-        public var stringValue: String { ReturnKey.stringValue }
-        
-        public init?(stringValue: String) {
-            if stringValue == ReturnKey.stringValue {
-                self.init()
-            }
-            else {
-                return nil
-            }
-        }
-        
-        public var intValue: Int? { ReturnKey.intValue }
-        
-        public init?(intValue: Int) {
-            if intValue == ReturnKey.intValue {
-                self.init()
-            }
-            else {
-                return nil
-            }
-        }
-    }
-    
-    private var _isTransitioningBack = false
-    private var _returnAction: (() -> ())? = nil
-    private var _listener: ((IndexPath) -> ())? = nil
-    
-    func listen<Key : CodingKey, Value>(
-        forKey key: Key,
-        listener: @escaping (Value) -> ()
-    ) -> ()? {
-        switch key.stringValue {
-        case UIValueResponderDefaultResultKey.stringValue:
-            self._listener = listener as? (IndexPath) -> ()
-            return ()
-        case ReturnKey.stringValue:
-            if let listener = listener as? (()) -> () {
-                self._returnAction = { listener(()) }
-            }
-            return ()
-        default:
-            return nil
-        }
-    }
+    ValueReceiver,
+    ValueResponder {
     
     private var _path: IndexPath? = nil
-    private var _placeholderBuffer: String?? = nil
     private var _value: IndexPath? = nil
     private var _selections: [SelectionFieldPageTableViewCell.Section]? = nil
     
@@ -320,9 +281,46 @@ public class SelectionFieldPageViewController
     }
     
     @IBAction private func _onCancel() {
-        if self._isTransitioningBack { return }
-        self._returnAction!()
-        self._isTransitioningBack = true
+        for listener in self._backListeners {
+            listener(())
+        }
+        self._valueListeners.removeAll()
+        self._backListeners.removeAll()
+    }
+    
+    private var _valueListeners: [(IndexPath) -> ()] = []
+    private var _backListeners: [(()) -> ()] = []
+    
+    func send<Value>(named label: String?, _ value: Value) -> ()? {
+        switch (label, value) {
+        case ("title", let value as String?):
+            self.title = value
+            return ()
+        case ("value", let value as IndexPath?),
+            (nil, let value as IndexPath?):
+            self.value = value
+            return ()
+        default:
+            return nil
+        }
+    }
+    
+    func listen<Value>(
+        named label: String?,
+        with listener: @escaping (Value) -> ()
+    ) -> ()? {
+        switch (label, listener) {
+        case ("back", let listener as (()) -> ()),
+            (nil, let listener as (()) -> ()):
+            _backListeners.append(listener)
+            return ()
+        case ("value", let listener as (IndexPath) -> ()),
+            (nil, let listener as (IndexPath) -> ()):
+            _valueListeners.append(listener)
+            return ()
+        default:
+            return nil
+        }
     }
     
     public override func numberOfSections(
@@ -375,12 +373,16 @@ public class SelectionFieldPageViewController
             cell.value = self.value?[2...]
             cell.path = (self._path ?? []).appending(indexPath)
             cell.selections = sections
-            cell.listen(
-                forKey: UIValueResponderDefaultResultKey(),
-                listener: self._listener!)
-            cell.listen(
-                forKey: SelectionFieldPageViewController.ReturnKey(),
-                listener: self._returnAction!)
+            cell.listen { (value: IndexPath) in
+                for listener in self._valueListeners {
+                    listener(value)
+                }
+            }
+            cell.listen { (_: ()) in
+                for listener in self._backListeners {
+                    listener(())
+                }
+            }
             return cell
         }
     }
@@ -393,8 +395,12 @@ public class SelectionFieldPageViewController
         case nil:
             preconditionFailure()
         case .value(_):
-            self._listener!(indexPath)
-            self._returnAction!()
+            for listener in self._valueListeners {
+                listener(indexPath)
+            }
+            for listener in self._backListeners {
+                listener(())
+            }
             break
         case .inner(_, _):
             let cell = tableView
@@ -423,9 +429,15 @@ public class SelectionFieldPageViewControllerValueTableViewCell
     }
 }
 
+/// ### Receives:
+/// * `"label"` : `String?`
+/// * `"value"` or nil : `String?`
+/// ### Responds:
+/// * `"value"` or nil : `String`
 public class SelectionFieldPageViewControllerInnerTableViewCell
     : UITableViewCell,
-    UIValueResponder {
+    ValueReceiver,
+    ValueResponder {
     
     private var _path: IndexPath? = nil
     private var _valueBuffer: IndexPath?? = nil
@@ -441,15 +453,18 @@ public class SelectionFieldPageViewControllerInnerTableViewCell
                 withIdentifier: "InnerSelectionFieldPage")
             as! SelectionFieldPageViewController
 
-        result.listen(
-            forKey: UIValueResponderDefaultResultKey(),
-            listener: { (value: IndexPath) in
-                self._listener!(self._path!.appending(value))
-            })
+        result.listen { (value: IndexPath) in
+            let value = self._path!.appending(value)
+            for listener in self._valueListeners {
+                listener(value)
+            }
+        }
         
-        result.listen(
-            forKey: SelectionFieldPageViewController.ReturnKey(),
-            listener: self._returnAction!)
+        result.listen { (_: ()) in
+            for listener in self._backListeners {
+                listener(())
+            }
+        }
 
         self._recentPage = result
 
@@ -464,36 +479,16 @@ public class SelectionFieldPageViewControllerInnerTableViewCell
         return result
     }
     
-    private var _returnAction: (() -> ())? = nil
-    private var _listener: ((IndexPath) -> ())? = nil
-    
-    func listen<Key : CodingKey, Value>(
-        forKey key: Key,
-        listener: @escaping (Value) -> ()
-    ) -> ()? {
-        switch key.stringValue {
-        case UIValueResponderDefaultResultKey.stringValue:
-            self._listener = listener as? (IndexPath) -> ()
-            return ()
-        case SelectionFieldPageViewController.ReturnKey.stringValue:
-            if let listener = listener as? (()) -> () {
-                self._returnAction = { listener(()) }
-            }
-            return ()
-        default:
-            return nil
-        }
-    }
-    
     public override func prepareForReuse() {
-        self._listener = nil
+        self._valueListeners.removeAll()
+        self._backListeners.removeAll()
         self._valueBuffer = nil
         self._selectionsBuffer = nil
         self._recentPage = nil
-        self._label.text = nil
+        self._label!.text = nil
     }
     
-    @IBOutlet private var _label: UILabel!
+    @IBOutlet private var _label: UILabel?
     
     public var path: IndexPath? {
         get { return self._path }
@@ -539,10 +534,41 @@ public class SelectionFieldPageViewControllerInnerTableViewCell
     }
     
     public var label: String? {
-        get { return self._label.text }
+        get { return self._label!.text }
         set {
-            self._label.text = newValue
+            self._label!.text = newValue
             self._recentPage?.navigationItem.title = newValue
+        }
+    }
+        
+    private var _valueListeners: [(IndexPath) -> ()] = []
+    private var _backListeners: [(()) -> ()] = []
+    
+    func send<Value>(named label: String?, _ value: Value) -> ()? {
+        switch (label, value) {
+        case ("label", let value as String?):
+            self.label = value
+            return ()
+        case ("value", let value as IndexPath?),
+            (nil, let value as IndexPath?):
+            self.value = value
+            return ()
+        default:
+            return nil
+        }
+    }
+    
+    func listen<Value>(
+        named label: String?,
+        with listener: @escaping (Value) -> ()
+    ) -> ()? {
+        switch (label, listener) {
+        case ("value", let listener as (IndexPath) -> ()),
+            (nil, let listener as (IndexPath) -> ()):
+            self._valueListeners.append(listener)
+            return ()
+        default:
+            return nil
         }
     }
 }

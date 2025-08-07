@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum CalendarTaskAttribute : Codable, CustomStringConvertible {
+public enum TaskAttributeDescription : Codable, CustomStringConvertible {
         
     private enum _Type {
         
@@ -91,7 +91,7 @@ public enum CalendarTaskAttribute : Codable, CustomStringConvertible {
             return
         default:
             throw DecodingError.typeMismatch(
-                CalendarTaskAttribute.self,
+                TaskAttributeDescription.self,
                 DecodingError.Context.init(
                     codingPath: container.codingPath,
                     debugDescription: "Attribute type is invalid."))
@@ -145,7 +145,7 @@ public enum CalendarTaskAttribute : Codable, CustomStringConvertible {
         }
     }
     
-    public func clone() -> CalendarTaskAttribute {
+    public func clone() -> TaskAttributeDescription {
         switch self {
         case .duration(let milliseconds):
             return .duration(milliseconds: milliseconds)

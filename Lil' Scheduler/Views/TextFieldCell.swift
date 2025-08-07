@@ -7,27 +7,19 @@
 
 import UIKit
 
+/// ### Receives:
+/// * `"label"` : `String?`
+/// * `"placeholder"` : `String?`
+/// * `"value"` or `"text"` or nil : `String?`
+/// ### Responds:
+/// * `"value"` or `"text"` or nil : `String`
 public class TextFieldTableViewCell
     : UITableViewCell,
-      UIValueResponder {
-    
-    private var _listener: ((String) -> ())? = nil
-    
-    func listen<Key : CodingKey, Value>(
-        forKey key: Key,
-        listener: @escaping (Value) -> ()
-    ) -> ()? {
-        switch key.stringValue {
-        case UIValueResponderDefaultResultKey.stringValue:
-            self._listener = listener as? (String) -> ()
-            return ()
-        default:
-            return nil
-        }
-    }
+    ValueReceiver,
+    ValueResponder {
     
     public override func prepareForReuse() {
-        self._listener = nil
+        self._valueListeners.removeAll()
         self._label.text = nil
         self._field.placeholder = nil
         self._field.text = nil
@@ -37,7 +29,10 @@ public class TextFieldTableViewCell
     @IBOutlet private var _field: UITextField!
     
     @IBAction private func _onTextChange() {
-        self._listener?(self.value ?? "")
+        let value = self.value ?? ""
+        for listener in self._valueListeners {
+            listener(value)
+        }
     }
     
     public var label: String? {
@@ -54,7 +49,45 @@ public class TextFieldTableViewCell
         get { return _field.text }
         set {
             _field.text = newValue
-            self._listener?(newValue ?? "")
+            let value = newValue ?? ""
+            for listener in _valueListeners {
+                listener(value)
+            }
+        }
+    }
+    
+    private var _valueListeners: [(String) -> ()] = []
+    
+    func send<Value>(named label: String?, _ value: Value) -> ()? {
+        switch (label, value) {
+        case ("label", let value as String?):
+            self.label = value
+            return ()
+        case ("placeholder", let value as String?):
+            self.placeholder = value
+            return ()
+        case ("value", let value as String?),
+            ("text", let value as String?),
+            (nil, let value as String?):
+            self.value = value
+            return ()
+        default:
+            return nil
+        }
+    }
+    
+    func listen<Value>(
+        named label: String?,
+        with listener: @escaping (Value) -> ()
+    ) -> ()? {
+        switch (label, listener) {
+        case ("value", let listener as (String) -> ()),
+            ("text", let listener as (String) -> ()),
+            (nil, let listener as (String) -> ()):
+            _valueListeners.append(listener)
+            return ()
+        default:
+            return nil
         }
     }
 }

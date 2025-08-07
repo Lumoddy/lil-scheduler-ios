@@ -9,12 +9,12 @@ import Foundation
 
 extension Collection {
     
-    public func contains(index: Index) -> Bool {
+    public func contains(index: Self.Index) -> Bool {
         return index >= self.startIndex && index < self.endIndex
     }
 
-    public subscript (safe index: Index) -> Element? {
-        return contains(index: index) ? self[index] : nil
+    public subscript (safe index: Self.Index) -> Self.Element? {
+        return self.contains(index: index) ? self[index] : nil
     }
 }
 
@@ -23,9 +23,9 @@ extension RangeReplaceableCollection {
     /// Searches the collection element by element until an equal element is
     /// found. `newElement` is then inserted before it.
     public mutating func insert(
-        _ newElement: Element,
-        before target: Element,
-        where equals: (Element, Element) throws -> Bool
+        _ newElement: Self.Element,
+        before target: Self.Element,
+        where equals: (Self.Element, Self.Element) throws -> Bool
     ) rethrows {
         for (index, element) in zip(self.indices, self) {
             if try equals(element, target) {
@@ -40,9 +40,9 @@ extension RangeReplaceableCollection {
     /// found. `newElements` is then inserted before it.
     public mutating func insert<S>(
         contentsOf newElements: S,
-        before target: Element,
-        where equals: (Element, Element) throws -> Bool
-    ) rethrows where S : Collection, Element == S.Element {
+        before target: Self.Element,
+        where equals: (Self.Element, Self.Element) throws -> Bool
+    ) rethrows where S : Collection, Self.Element == S.Element {
         for (index, element) in zip(self.indices, self) {
             if try equals(element, target) {
                 self.insert(contentsOf: newElements, at: index)
@@ -55,9 +55,9 @@ extension RangeReplaceableCollection {
     /// Searches the collection element by element for a range of elements
     /// that are equal and inserts `newElement` after them.
     public mutating func insert(
-        _ newElement: Element,
-        after target: Element,
-        where equals: (Element, Element) throws -> Bool
+        _ newElement: Self.Element,
+        after target: Self.Element,
+        where equals: (Self.Element, Self.Element) throws -> Bool
     ) rethrows {
         var found = false
         for (index, element) in zip(self.indices, self) {
@@ -76,9 +76,9 @@ extension RangeReplaceableCollection {
     /// that are equal and inserts `newElements` after them.
     public mutating func insert<S>(
         contentsOf newElements: S,
-        after target: Element,
-        where equals: (Element, Element) throws -> Bool
-    ) rethrows where S : Collection, Element == S.Element {
+        after target: Self.Element,
+        where equals: (Self.Element, Self.Element) throws -> Bool
+    ) rethrows where S : Collection, Self.Element == S.Element {
         var found = false
         for (index, element) in zip(self.indices, self) {
             if try equals(element, target) {
@@ -92,35 +92,24 @@ extension RangeReplaceableCollection {
         self.append(contentsOf: newElements)
     }
     
-    public mutating func take(at index: Index) -> Element? {
-        guard let element = self[safe: index] else {
+    @discardableResult
+    public mutating func removeFirst(
+        where shouldBeRemoved: (Self.Element) throws -> Bool
+    ) rethrows -> Self.Element? {
+        guard let index = try self.firstIndex(where: shouldBeRemoved) else {
             return nil
         }
-        self.remove(at: index)
-        return element
-    }
-    
-    public mutating func take<S>(
-        from collection: inout S,
-        at index: Index
-    ) -> ()? where S : RangeReplaceableCollection,
-        S.Element == Element,
-        S.Index == Index {
-        guard let element = collection.take(at: index) else {
-            return nil
-        }
-        self.append(element)
-        return ()
+        return self.remove(at: index)
     }
 }
 
-extension RangeReplaceableCollection where Index : BinaryInteger {
+extension RangeReplaceableCollection where Self.Index : BinaryInteger {
     
     /// Searches the collection using binary search and inserts `newElement`
     /// after all equal or lower elements.
     public mutating func orderedInsert(
-        _ newElement: Element,
-        by areInIncreasingOrder: (Element, Element) throws -> Bool
+        _ newElement: Self.Element,
+        by areInIncreasingOrder: (Self.Element, Self.Element) throws -> Bool
     ) rethrows {
         var start = self.startIndex
         var end = self.endIndex
@@ -172,7 +161,7 @@ extension RangeReplaceableCollection where Index : BinaryInteger {
     ///         })
     ///
     public func orderedFirstIndex(
-        where comparer: (Element) throws -> ComparisonResult
+        where comparer: (Self.Element) throws -> ComparisonResult
     ) rethrows -> Self.Index? {
         var start = self.startIndex
         var end = self.endIndex
@@ -225,7 +214,7 @@ extension RangeReplaceableCollection where Index : BinaryInteger {
     ///         })
     ///
     public func orderedContains(
-        where comparer: (Element) throws -> ComparisonResult
+        where comparer: (Self.Element) throws -> ComparisonResult
     ) rethrows -> Bool {
         var start = self.startIndex
         var end = self.endIndex
@@ -278,53 +267,22 @@ extension RangeReplaceableCollection where Index : BinaryInteger {
     ///         })
     ///
     public mutating func orderedRemoveFirst(
-        where comparer: (Element) throws -> ComparisonResult
-    ) rethrows -> ()? {
+        where comparer: (Self.Element) throws -> ComparisonResult
+    ) rethrows -> Self.Element? {
         guard let index = try orderedFirstIndex(where: comparer) else {
             return nil
         }
-        self.remove(at: index)
-        return ()
-    }
-    
-    /// Uses binary search to find an element that fits a condition and
-    /// returns its index. The `comparer` must return `.orderedSame` if the
-    /// element is what your looking for, otherwise `.orderedAscending` if it
-    /// would be sorted before and `.orderedDecending` if after.
-    ///
-    /// An example of an implementation would be the below:
-    ///
-    ///     let targetValue: Int = 37
-    ///     collection.orderedRemoveFirst(
-    ///         whereElementIs: { element in
-    ///             if element == targetValue {
-    ///                 return .orderedSame
-    ///             }
-    ///             else if element < targetValue {
-    ///                 return .orderedAscending
-    ///             }
-    ///             else {
-    ///                 return .orderedDescending
-    ///             }
-    ///         })
-    ///
-    public mutating func orderedTakeFirst(
-        where comparer: (Element) throws -> ComparisonResult
-    ) rethrows -> Element? {
-        guard let index = try orderedFirstIndex(where: comparer) else {
-            return nil
-        }
-        return self.take(at: index)!
+        return self.remove(at: index)
     }
 }
 
-extension RangeReplaceableCollection where Element : Equatable {
+extension RangeReplaceableCollection where Self.Element : Equatable {
     
     /// Searches the collection element by element until an equal element is
     /// found. `newElement` is then inserted before it.
     public mutating func insert(
-        _ newElement: Element,
-        before target: Element
+        _ newElement: Self.Element,
+        before target: Self.Element
     ) {
         self.insert(newElement, before: target, where: { $0 == $1 })
     }
@@ -333,7 +291,7 @@ extension RangeReplaceableCollection where Element : Equatable {
     /// found. `newElements` is then inserted before it.
     public mutating func insert<S>(
         contentsOf newElements: S,
-        before target: Element
+        before target: Self.Element
     ) where S : Collection, Self.Element == S.Element {
         self.insert(contentsOf: newElements, before: target, where: { $0 == $1 })
     }
@@ -341,8 +299,8 @@ extension RangeReplaceableCollection where Element : Equatable {
     /// Searches the collection element by element for a range of elements
     /// that are equal and inserts `newElement` after them.
     public mutating func insert(
-        _ newElement: Element,
-        after target: Element
+        _ newElement: Self.Element,
+        after target: Self.Element
     ) {
         self.insert(newElement, after: target, where: { $0 == $1 })
     }
@@ -351,19 +309,19 @@ extension RangeReplaceableCollection where Element : Equatable {
     /// that are equal and inserts `newElement` after them.
     public mutating func insert<S>(
         contentsOf newElements: S,
-        after target: Element
+        after target: Self.Element
     ) where S : Collection, Self.Element == S.Element {
         self.insert(contentsOf: newElements, after: target, where: { $0 == $1 })
     }
 }
 
 extension RangeReplaceableCollection
-    where Element : Comparable,
-    Index : BinaryInteger {
+    where Self.Element : Comparable,
+        Self.Index : BinaryInteger {
     
     /// Searches the collection using binary search and inserts `newElement`
     /// after all equal or lower elements.
-    public mutating func orderedInsert(_ newElement: Element) {
+    public mutating func orderedInsert(_ newElement: Self.Element) {
         self.orderedInsert(newElement, by: { $0 < $1 })
     }
     
@@ -383,7 +341,7 @@ extension RangeReplaceableCollection
         })
     }
     
-    public func orderedContains(element: Element) -> Bool {
+    public func orderedContains(element: Self.Element) -> Bool {
         return orderedContains(where: {
             if $0 == element {
                 return .orderedSame

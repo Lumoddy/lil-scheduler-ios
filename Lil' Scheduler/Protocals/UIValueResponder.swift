@@ -7,106 +7,99 @@
 
 import UIKit
 
-struct UIValueResponderDefaultResultKey : CodingKey, Hashable {
+/// Objects, UIViews or UIViewControllers can implement this protocal to give
+/// it the ability to respond to values without having to cast to each relevent
+/// type.
+///
+/// ```swift
+/// (responder: any ValueResponder) in
+/// // unlabeled string:
+/// responder.listen(with: { /* ... */ })
+/// // labeled int:
+/// responder.listen(named: "count") {
+///     (value: Int) in
+///     // ...
+/// }
+/// // specified float:
+/// responder.listen(for: Float.self) {
+///     value in
+///     // ...
+/// }
+/// ```
+/// ```swift
+/// (view: UIViewController) in
+/// // unlabeled string:
+/// view.listenIfResponder {
+///     (text: String) in
+///     // ...
+/// }
+/// ```
+///
+/// Normally, values are sent without labels and are handled by identifying
+/// their type but labels can be used as well if needed. 
+///
+/// ## API Note
+/// Implementers should also support listeners with labels if they support
+/// without.
+protocol ValueResponder {
     
-    public static let stringValue = "value"
-    public static let intValue = {
-        var hasher = Hasher()
-        stringValue.hash(into: &hasher)
-        return hasher.finalize()
-    }()
-
-    public init() { }
-    
-    public var stringValue: String { UIValueResponderDefaultResultKey.stringValue }
-    
-    public init?(stringValue: String) {
-        if stringValue == UIValueResponderDefaultResultKey.stringValue {
-            self.init()
-        }
-        else {
-            return nil
-        }
-    }
-    
-    public var intValue: Int? { UIValueResponderDefaultResultKey.intValue }
-    
-    public init?(intValue: Int) {
-        if intValue == UIValueResponderDefaultResultKey.intValue {
-            self.init()
-        }
-        else {
-            return nil
-        }
-    }
+    func listen<Value>(
+        named label: String?,
+        with listener: @escaping (Value) -> ()
+    ) -> ()?
 }
 
-protocol UIValueResponder : UIResponder {
+extension ValueResponder {
     
-    func listen<Key : CodingKey, Value>(
-        forKey key: Key,
-        listener: @escaping (Value) -> ()) -> ()?
-}
-
-extension UIValueResponder {
-    
-    func listen<Key : CodingKey>(
-        forKey key: Key,
-        listener: @escaping () -> ()
+    public func listen<Value>(
+        with listener: @escaping (Value) -> ()
     ) -> ()? {
-        self.listen(forKey: key, listener: { (_: ()) in listener() })
+        return self.listen(named: nil, with: listener)
     }
-}
-
-struct UIValueResponderHandler<Key : CodingKey & Hashable> : ~Copyable {
-    
-    private var _stored: [Key : (Any) -> ()?] = [:]
-    
-    public mutating func handleListen<OtherKey : CodingKey, Value>(
-        forKey key: OtherKey,
-        listener: @escaping (Value) -> ()
+    public func listen<Value>(
+        for: Value.Type,
+        with listener: @escaping (Value) -> ()
     ) -> ()? {
-        let convertedKey: Key
-        if let key = key as? Key {
-            convertedKey = key
-        }
-        else if
-            let intValue = key.intValue,
-            let key = Key(intValue: intValue) {
-            convertedKey = key
-        }
-        else if
-            let key = Key(stringValue: key.stringValue) {
-            convertedKey = key
-        }
-        else {
-            return nil
-        }
-        self._stored[convertedKey] = { value in
-            if let value = value as? Value {
-                listener(value)
-                return ()
-            }
-            else {
-                return nil
-            }
-        }
-        return ()
+        return self.listen(named: nil, with: listener)
     }
-    
-    public func respond<Value>(forKey key: Key, with value: Value) -> ()? {
-        return self._stored[key]?(value)
+    public func listen<Value>(
+        for: Value.Type,
+        named label: String?,
+        with listener: @escaping (Value) -> ()
+    ) -> ()? {
+        return self.listen(named: label, with: listener)
+    }
+    public func listen(
+        with event: @escaping () -> ()
+    ) -> ()? {
+        return self.listen(named: nil, with: { (_: ()) in event() })
     }
 }
 
 extension UIViewController {
     
-    func listenIfResponder<Key : CodingKey, Value>(
-        forKey key: Key,
-        listener: @escaping (Value) -> ()
+    public func listenIfResponder<Value>(
+        with listener: @escaping (Value) -> ()
     ) -> ()? {
-        return (self as? UIValueResponder)?.listen(
-            forKey: key,
-            listener: listener)
+        return (self as? ValueResponder)?.listen(with: listener)
+    }
+    public func listenIfResponder<Value>(
+        named label: String?,
+        with listener: @escaping (Value) -> ()
+    ) -> ()? {
+        return (self as? ValueResponder)?.listen(named: label, with: listener)
+    }
+    public func listenIfResponder<Value>(
+        for: Value.Type,
+        with listener: @escaping (Value) -> ()
+    ) -> ()? {
+        return (self as? ValueResponder)?.listen(with: listener)
+    }
+    public func listenIfResponder<Value>(
+        for: Value.Type,
+        named label: String?,
+        with listener: @escaping (Value) -> ()
+    ) -> ()? {
+        return (self as? ValueResponder)?.listen(named: label, with: listener)
     }
 }

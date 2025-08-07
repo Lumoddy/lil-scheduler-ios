@@ -7,9 +7,17 @@
 
 import UIKit
 
+/// ### Receives:
+/// * `"title"` : `String`
+/// * `"label"` : `String`
+/// * `"placeholder"` : `String`
+/// * `"value"` or `"text"` or nil : `String`
+/// ### Responds:
+/// * `"value"` or `"text"` or nil : `String`
 public class TextFieldPageTableViewCell
     : UITableViewCell,
-    UIValueResponder {
+    ValueReceiver,
+    ValueResponder {
     
     private var _titleBuffer: String?? = nil
     private var _placeholderBuffer: String?? = nil
@@ -24,15 +32,13 @@ public class TextFieldPageTableViewCell
                 withIdentifier: "TextFieldPage")
             as! TextFieldPageViewController
 
-        result.listen(
-            forKey: UIValueResponderDefaultResultKey()
-        ) { (value: String) in
-            self._listener?(value)
+        result.listen { (value: String) in
+            for listener in self._valueListeners {
+                listener(value)
+            }
         }
         
-        result.listen(
-            forKey: TextFieldPageViewController.ReturnKey()
-        ) { (_: ()) in
+        result.listen(named: "back") { (_: ()) in
             let viewController = self.viewController!
             viewController.navigationController!.popToViewController(
                 viewController,
@@ -54,31 +60,8 @@ public class TextFieldPageTableViewCell
         return result
     }
     
-    private var _listener: ((String) -> ())? = nil
-    
-    func listen<Key : CodingKey, Value>(
-        forKey key: Key,
-        listener: @escaping (Value) -> ()
-    ) -> ()? {
-        switch key.stringValue {
-        case UIValueResponderDefaultResultKey.stringValue:
-            if let listener = listener as? (String) -> () {
-                self._listener = { value in
-                    listener(value)
-                    self._preview.text = value
-                }
-            }
-            else {
-                self._listener = nil
-            }
-            return ()
-        default:
-            return nil
-        }
-    }
-    
     public override func prepareForReuse() {
-        self._listener = nil
+        self._valueListeners.removeAll()
         self._titleBuffer = nil
         self._placeholderBuffer = nil
         self._valueBuffer = nil
@@ -89,6 +72,11 @@ public class TextFieldPageTableViewCell
     
     @IBOutlet private var _label: UILabel!
     @IBOutlet private var _preview: UILabel!
+    
+    public var label: String? {
+        get { return self._label.text }
+        set { self._label.text = newValue }
+    }
     
     public var title: String? {
         get {
@@ -148,72 +136,59 @@ public class TextFieldPageTableViewCell
         }
     }
     
-    public var label: String? {
-        get { return self._label.text }
-        set { self._label.text = newValue }
-    }
-}
-
-public class TextFieldPageViewController
-    : UITableViewController,
-    UIValueResponder {
+    private var _valueListeners: [(String) -> ()] = []
     
-    struct ReturnKey : CodingKey, Hashable {
-        
-        public static let stringValue = "return"
-        public static let intValue = {
-            var hasher = Hasher()
-            stringValue.hash(into: &hasher)
-            return hasher.finalize()
-        }()
-
-        public init() { }
-        
-        public var stringValue: String { ReturnKey.stringValue }
-        
-        public init?(stringValue: String) {
-            if stringValue == ReturnKey.stringValue {
-                self.init()
-            }
-            else {
-                return nil
-            }
-        }
-        
-        public var intValue: Int? { ReturnKey.intValue }
-        
-        public init?(intValue: Int) {
-            if intValue == ReturnKey.intValue {
-                self.init()
-            }
-            else {
-                return nil
-            }
-        }
-    }
-    
-    private var _isTransitioningBack = false
-    private var _returnAction: (() -> ())? = nil
-    private var _listener: ((String) -> ())? = nil
-    
-    func listen<Key : CodingKey, Value>(
-        forKey key: Key,
-        listener: @escaping (Value) -> ()
-    ) -> ()? {
-        switch key.stringValue {
-        case UIValueResponderDefaultResultKey.stringValue:
-            self._listener = listener as? (String) -> ()
+    func send<Value>(named label: String?, _ value: Value) -> ()? {
+        switch (label, value) {
+        case ("label", let value as String?):
+            self.label = value
             return ()
-        case ReturnKey.stringValue:
-            if let listener = listener as? (()) -> () {
-                self._returnAction = { listener(()) }
-            }
+        case ("title", let value as String?):
+            self.title = value
+            return ()
+        case ("placeholder", let value as String?):
+            self.placeholder = value
+            return ()
+        case ("value", let value as String?),
+            ("text", let value as String?),
+            (nil, let value as String?):
+            self.value = value
             return ()
         default:
             return nil
         }
     }
+    
+    func listen<Value>(
+        named label: String?,
+        with listener: @escaping (Value) -> ()
+    ) -> ()? {
+        switch (label, listener) {
+        case ("value", let listener as (String) -> ()),
+            ("text", let listener as (String) -> ()),
+            (nil, let listener as (String) -> ()):
+            self._valueListeners.append(listener)
+            return ()
+        default:
+            return nil
+        }
+    }
+}
 
+/// ### Receives:
+/// * `"title"` : `String?`
+/// * `"label"` : `String?`
+/// * `"placeholder"` : `String?`
+/// * `"value"` or `"text"` or nil : `String?`
+/// ### Responds:
+/// * `"value"` or `"text"` or nil : `String`
+/// * `"back"` or nil : `()`
+///     * Expects navigation to pop back to calling view controller.
+public class TextFieldPageViewController
+    : UITableViewController,
+    ValueReceiver,
+    ValueResponder {
+    
     private var _placeholderBuffer: String?? = nil
     private var _valueBuffer: String?? = nil
     
@@ -223,6 +198,29 @@ public class TextFieldPageViewController
         self._field.placeholder = self._placeholderBuffer ?? nil
         self._field.text = self._valueBuffer ?? nil
     }
+    
+    @IBAction private func _onDone() {
+        let value = self.value ?? ""
+        for listener in self._valueListeners {
+            listener(value)
+        }
+        for listener in self._backListeners {
+            listener(())
+        }
+        self._valueListeners.removeAll()
+        self._backListeners.removeAll()
+    }
+
+    @IBAction private func _onCancel() {
+        let value = self.value ?? ""
+        for listener in self._valueListeners {
+            listener(value)
+        }
+        self._valueListeners.removeAll()
+        self._backListeners.removeAll()
+    }
+    
+    @IBAction private func _onTextChange() { }
 
     public override var title: String? {
         get { return self.navigationItem.title }
@@ -267,18 +265,43 @@ public class TextFieldPageViewController
         }
     }
     
-    @IBAction private func _onDone() {
-        if self._isTransitioningBack { return }
-        self._listener?(self._field.text ?? "")
-        self._returnAction!()
-        self._isTransitioningBack = true
-    }
-
-    @IBAction private func _onCancel() {
-        if self._isTransitioningBack { return }
-        self._returnAction!()
-        self._isTransitioningBack = true
+    private var _valueListeners: [(String) -> ()] = []
+    private var _backListeners: [(()) -> ()] = []
+    
+    func send<Value>(named label: String?, _ value: Value) -> ()? {
+        switch (label, value) {
+        case ("title", let value as String?):
+            self.title = value
+            return ()
+        case ("placeholder", let value as String?):
+            self.placeholder = value
+            return ()
+        case ("value", let value as String?),
+            ("text", let value as String?),
+            (nil, let value as String?):
+            self.value = value
+            return ()
+        default:
+            return nil
+        }
     }
     
-    @IBAction private func _onTextChange() { }
+    func listen<Value>(
+        named label: String?,
+        with listener: @escaping (Value) -> ()
+    ) -> ()? {
+        switch (label, listener) {
+        case ("back", let listener as (()) -> ()),
+            (nil, let listener as (()) -> ()):
+            _backListeners.append(listener)
+            return ()
+        case ("value", let listener as (String) -> ()),
+            ("text", let listener as (String) -> ()),
+            (nil, let listener as (String) -> ()):
+            _valueListeners.append(listener)
+            return ()
+        default:
+            return nil
+        }
+    }
 }

@@ -46,13 +46,13 @@ public final class TaskDescription : Codable {
     public var title: String
     public var description: String
     public var color: RGB
-    public var attributes: [CalendarTaskAttribute]?
+    public var attributes: [TaskAttributeDescription]?
     
     public init(
         title: String,
         description: String,
         color: RGB,
-        attributes: [CalendarTaskAttribute]? = nil
+        attributes: [TaskAttributeDescription]? = nil
     ) {
         self.title = title
         self.description = description
@@ -91,7 +91,7 @@ public final class TaskDescription : Codable {
         }
 
         attributes = try container.decodeIfPresent(
-            [CalendarTaskAttribute].self,
+            [TaskAttributeDescription].self,
             forKey: .attributes)
     }
 
