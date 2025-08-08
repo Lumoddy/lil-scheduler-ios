@@ -7,16 +7,10 @@
 
 import UIKit
 
-/// ### Receives:
-/// * `"title"` : `String`
-/// * `"label"` : `String`
-/// * `"placeholder"` : `String`
-/// * `"value"` or `"text"` or nil : `String`
 /// ### Responds:
 /// * `"value"` or `"text"` or nil : `String`
 public class TextFieldPageTableViewCell
     : UITableViewCell,
-    ValueReceiver,
     ValueResponder {
     
     private var _titleBuffer: String?? = nil
@@ -38,7 +32,7 @@ public class TextFieldPageTableViewCell
             }
         }
         
-        result.listen(named: "back") { (_: ()) in
+        result.listen { (_: ()) in
             let viewController = self.viewController!
             viewController.navigationController!.popToViewController(
                 viewController,
@@ -138,27 +132,6 @@ public class TextFieldPageTableViewCell
     
     private var _valueListeners: [(String) -> ()] = []
     
-    func send<Value>(named label: String?, _ value: Value) -> ()? {
-        switch (label, value) {
-        case ("label", let value as String?):
-            self.label = value
-            return ()
-        case ("title", let value as String?):
-            self.title = value
-            return ()
-        case ("placeholder", let value as String?):
-            self.placeholder = value
-            return ()
-        case ("value", let value as String?),
-            ("text", let value as String?),
-            (nil, let value as String?):
-            self.value = value
-            return ()
-        default:
-            return nil
-        }
-    }
-    
     func listen<Value>(
         named label: String?,
         with listener: @escaping (Value) -> ()
@@ -175,19 +148,12 @@ public class TextFieldPageTableViewCell
     }
 }
 
-/// ### Receives:
-/// * `"title"` : `String?`
-/// * `"label"` : `String?`
-/// * `"placeholder"` : `String?`
-/// * `"value"` or `"text"` or nil : `String?`
 /// ### Responds:
 /// * `"value"` or `"text"` or nil : `String`
 /// * `"back"` or nil : `()`
 ///     * Expects navigation to pop back to calling view controller.
 public class TextFieldPageViewController
-    : UITableViewController,
-    ValueReceiver,
-    ValueResponder {
+    : UITableViewController {
     
     private var _placeholderBuffer: String?? = nil
     private var _valueBuffer: String?? = nil
@@ -268,36 +234,14 @@ public class TextFieldPageViewController
     private var _valueListeners: [(String) -> ()] = []
     private var _backListeners: [(()) -> ()] = []
     
-    func send<Value>(named label: String?, _ value: Value) -> ()? {
-        switch (label, value) {
-        case ("title", let value as String?):
-            self.title = value
-            return ()
-        case ("placeholder", let value as String?):
-            self.placeholder = value
-            return ()
-        case ("value", let value as String?),
-            ("text", let value as String?),
-            (nil, let value as String?):
-            self.value = value
-            return ()
-        default:
-            return nil
-        }
-    }
-    
     func listen<Value>(
-        named label: String?,
         with listener: @escaping (Value) -> ()
     ) -> ()? {
-        switch (label, listener) {
-        case ("back", let listener as (()) -> ()),
-            (nil, let listener as (()) -> ()):
+        switch listener {
+        case let listener as (()) -> ():
             _backListeners.append(listener)
             return ()
-        case ("value", let listener as (String) -> ()),
-            ("text", let listener as (String) -> ()),
-            (nil, let listener as (String) -> ()):
+        case let listener as (String) -> ():
             _valueListeners.append(listener)
             return ()
         default:

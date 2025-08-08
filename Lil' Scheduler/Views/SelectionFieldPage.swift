@@ -7,15 +7,10 @@
 
 import UIKit
 
-/// ### Receives:
-/// * `"title"` : `String?`
-/// * `"label"` : `String?`
-/// * `"value"` or nil : `IndexPath?`
 /// ### Responds:
 /// * `"value"` or nil : `String`
 public class SelectionFieldPageTableViewCell
     : UITableViewCell,
-    ValueReceiver,
     ValueResponder {
     
     public class Section {
@@ -59,7 +54,7 @@ public class SelectionFieldPageTableViewCell
             }
         }
         
-        result.listen(named: "back") { (_: ()) in
+        result.listen { (_: ()) in
             let viewController = self.viewController!
             viewController.navigationController!.popToViewController(
                 viewController,
@@ -170,23 +165,6 @@ public class SelectionFieldPageTableViewCell
     
     private var _valueListeners: [(IndexPath) -> ()] = []
     
-    func send<Value>(named label: String?, _ value: Value) -> ()? {
-        switch (label, value) {
-        case ("title", let value as String?):
-            self.title = value
-            return ()
-        case ("label", let value as String?):
-            self.label = value
-            return ()
-        case ("value", let value as IndexPath?),
-            (nil, let value as IndexPath?):
-            self.value = value
-            return ()
-        default:
-            return nil
-        }
-    }
-    
     func listen<Value>(
         named label: String?,
         with listener: @escaping (Value) -> ()
@@ -238,17 +216,8 @@ extension [SelectionFieldPageTableViewCell.Section] {
     }
 }
 
-/// ### Receives:
-/// * `"title"` : `String?`
-/// * `"value"` or nil : `IndexPath?`
-/// ### Responds:
-/// * `"value"` or nil : `IndexPath`
-/// * `"back"` or nil : `()`
-///     * Expects navigation to pop back to calling view controller.
 public class SelectionFieldPageViewController
-    : UITableViewController,
-    ValueReceiver,
-    ValueResponder {
+    : UITableViewController {
     
     private var _path: IndexPath? = nil
     private var _value: IndexPath? = nil
@@ -306,17 +275,14 @@ public class SelectionFieldPageViewController
     }
     
     func listen<Value>(
-        named label: String?,
         with listener: @escaping (Value) -> ()
     ) -> ()? {
-        switch (label, listener) {
-        case ("back", let listener as (()) -> ()),
-            (nil, let listener as (()) -> ()):
-            _backListeners.append(listener)
+        switch listener {
+        case let listener as (()) -> ():
+            self._backListeners.append(listener)
             return ()
-        case ("value", let listener as (IndexPath) -> ()),
-            (nil, let listener as (IndexPath) -> ()):
-            _valueListeners.append(listener)
+        case let listener as (IndexPath) -> ():
+            self._valueListeners.append(listener)
             return ()
         default:
             return nil
@@ -429,15 +395,10 @@ public class SelectionFieldPageViewControllerValueTableViewCell
     }
 }
 
-/// ### Receives:
-/// * `"label"` : `String?`
-/// * `"value"` or nil : `String?`
 /// ### Responds:
 /// * `"value"` or nil : `String`
 public class SelectionFieldPageViewControllerInnerTableViewCell
-    : UITableViewCell,
-    ValueReceiver,
-    ValueResponder {
+    : UITableViewCell {
     
     private var _path: IndexPath? = nil
     private var _valueBuffer: IndexPath?? = nil
@@ -544,27 +505,11 @@ public class SelectionFieldPageViewControllerInnerTableViewCell
     private var _valueListeners: [(IndexPath) -> ()] = []
     private var _backListeners: [(()) -> ()] = []
     
-    func send<Value>(named label: String?, _ value: Value) -> ()? {
-        switch (label, value) {
-        case ("label", let value as String?):
-            self.label = value
-            return ()
-        case ("value", let value as IndexPath?),
-            (nil, let value as IndexPath?):
-            self.value = value
-            return ()
-        default:
-            return nil
-        }
-    }
-    
     func listen<Value>(
-        named label: String?,
         with listener: @escaping (Value) -> ()
     ) -> ()? {
-        switch (label, listener) {
-        case ("value", let listener as (IndexPath) -> ()),
-            (nil, let listener as (IndexPath) -> ()):
+        switch listener {
+        case let listener as (IndexPath) -> ():
             self._valueListeners.append(listener)
             return ()
         default:

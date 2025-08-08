@@ -8,7 +8,7 @@
 extension Result {
     
     /// A result based on whether or not the two cases are `nil`. If `success`
-    /// is not nil it is returned, otherwise if `failure` is not nil _it_ is
+    /// is not nil it is returned, otherwise if `failure` is not nil it is
     /// returned. If both are nil, an uncatchable error is thrown.
     public init(_ success: Success?, or failure: Failure?) {
         switch (success, failure) {

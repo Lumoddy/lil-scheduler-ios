@@ -7,15 +7,10 @@
 
 import UIKit
 
-/// ### Receives:
-/// * `"label"` : `String?`
-/// * `"placeholder"` : `String?`
-/// * `"value"` or `"text"` or nil : `String?`
 /// ### Responds:
 /// * `"value"` or `"text"` or nil : `String`
 public class TextFieldTableViewCell
     : UITableViewCell,
-    ValueReceiver,
     ValueResponder {
     
     public override func prepareForReuse() {
@@ -57,24 +52,6 @@ public class TextFieldTableViewCell
     }
     
     private var _valueListeners: [(String) -> ()] = []
-    
-    func send<Value>(named label: String?, _ value: Value) -> ()? {
-        switch (label, value) {
-        case ("label", let value as String?):
-            self.label = value
-            return ()
-        case ("placeholder", let value as String?):
-            self.placeholder = value
-            return ()
-        case ("value", let value as String?),
-            ("text", let value as String?),
-            (nil, let value as String?):
-            self.value = value
-            return ()
-        default:
-            return nil
-        }
-    }
     
     func listen<Value>(
         named label: String?,

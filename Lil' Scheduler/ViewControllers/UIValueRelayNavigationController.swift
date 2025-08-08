@@ -7,26 +7,32 @@
 
 import UIKit
 
+/// ### Receives:
+/// * `Any` : `Any`
+///     * Relayed to the top-most `viewController`.
+/// ### Responds:
+/// * `Any` : `Any`
+///     * Relayed to the top-most `viewController`.
 public class UIValueRelayNavigationController
     : UINavigationController,
-    UIValueReceiver,
-    UIValueResponder {
+    ValueReceiver,
+    ValueResponder {
 
-    func send<Key : CodingKey>(
-        _ value: Any,
-        forKey key: Key
+    func send<Value>(
+        named label: String?,
+        _ value: Value
     ) -> ()? {
-        self.viewControllers.first?.sendIfReceiver(
-            value,
-            forKey: key)
+        self.viewControllers.last?.sendIfReceiver(
+            named: label,
+            value)
     }
     
-    func listen<Key : CodingKey, Value>(
-        forKey key: Key,
-        listener: @escaping (Value) -> ()
+    func listen<Value>(
+        named label: String?,
+        with listener: @escaping (Value) -> ()
     ) -> ()? {
-        self.viewControllers.first?.listenIfResponder(
-            forKey: key,
-            listener: listener)
+        self.viewControllers.last?.listenIfResponder(
+            named: label,
+            with: listener)
     }
 }
