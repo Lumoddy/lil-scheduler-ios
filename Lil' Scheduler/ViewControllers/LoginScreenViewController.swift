@@ -9,18 +9,18 @@ import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 
-/// ### Responds:
+/// ### Generic Gets:
 /// * `"authenticated"` or nil : `AuthDataResult` and `User`
 /// * `"login"` : `AuthDataResult` and `User`
 /// * `"createAccount"` : `AuthDataResult` and `User`
-/// ### Sends Below:
+///
+/// ### Generic Sets:
 /// * `"authenticated"` : `AuthDataResult` and `User` and `()`
 /// * `"login"` : `AuthDataResult` and `User` and `()`
 /// * `"createAccount"` : `AuthDataResult` and `User` and `()`
 public class LoginScreenViewController
     : UITableViewController,
-    ValueReceiver,
-    ValueResponder {
+    GenericValueInterface {
     
     private static let _authenticatedLabel = "authenticated"
     private static let _loginLabel = "login"
@@ -52,22 +52,22 @@ public class LoginScreenViewController
                     for listener in self._loginUserListeners {
                         listener(result.user)
                     }
-                    self.sendBelow(
+                    self.setAllGenericBelow(
                         named: LoginScreenViewController._authenticatedLabel,
                         result)
-                    self.sendBelow(
+                    self.setAllGenericBelow(
                         named: LoginScreenViewController._authenticatedLabel,
                         result.user)
-                    self.sendBelow(
+                    self.setAllGenericBelow(
                         named: LoginScreenViewController._authenticatedLabel,
                         ())
-                    self.sendBelow(
+                    self.setAllGenericBelow(
                         named: LoginScreenViewController._loginLabel,
                         result)
-                    self.sendBelow(
+                    self.setAllGenericBelow(
                         named: LoginScreenViewController._loginLabel,
                         result.user)
-                    self.sendBelow(
+                    self.setAllGenericBelow(
                         named: LoginScreenViewController._loginLabel,
                         ())
                     self.navigationController!.popToBeforeViewController(
@@ -105,22 +105,22 @@ public class LoginScreenViewController
                     for listener in self._createAccountUserListeners {
                         listener(result.user)
                     }
-                    self.sendBelow(
+                    self.setAllGenericBelow(
                         named: LoginScreenViewController._authenticatedLabel,
                         result)
-                    self.sendBelow(
+                    self.setAllGenericBelow(
                         named: LoginScreenViewController._authenticatedLabel,
                         result.user)
-                    self.sendBelow(
+                    self.setAllGenericBelow(
                         named: LoginScreenViewController._authenticatedLabel,
                         ())
-                    self.sendBelow(
+                    self.setAllGenericBelow(
                         named: LoginScreenViewController._createAccountLabel,
                         result)
-                    self.sendBelow(
+                    self.setAllGenericBelow(
                         named: LoginScreenViewController._createAccountLabel,
                         result.user)
-                    self.sendBelow(
+                    self.setAllGenericBelow(
                         named: LoginScreenViewController._createAccountLabel,
                         ())
                     self.navigationController!.popToBeforeViewController(
@@ -170,66 +170,67 @@ public class LoginScreenViewController
     private var _createAccountResultListeners: [(AuthDataResult) -> ()] = []
     private var _createAccountUserListeners: [(User) -> ()] = []
     
-    func send<Value>(named label: String?, _ value: Value) -> ()? {
+    func setGeneric<Value>(
+        named label: String?,
+        _ type: Value.Type,
+        _ value: Value
+    ) -> GenericSetResponse {
         switch (label, value) {
         case ("error", let value as String?):
             self._errorLabel?.text = value
-            return ()
-        default:
-            return nil
-        }
-    }
-    
-    func listen<Value>(
-        named label: String?,
-        with listener: @escaping (Value) -> ()
-    ) -> ()? {
-        switch (label, listener) {
+            return .effect
         case (
             LoginScreenViewController._authenticatedLabel,
             let listener as (AuthDataResult) -> ()
         ),
             (nil, let listener as (AuthDataResult) -> ()):
             _authenticatedResultListeners.append(listener)
-            return ()
+            return .effect
         case (
             LoginScreenViewController._authenticatedLabel,
             let listener as (User) -> ()
         ),
             (nil, let listener as (User) -> ()):
             _authenticatedUserListeners.append(listener)
-            return ()
+            return .effect
         case (
             LoginScreenViewController._loginLabel,
             let listener as (AuthDataResult) -> ()
         ),
             (nil, let listener as (AuthDataResult) -> ()):
             _loginResultListeners.append(listener)
-            return ()
+            return .effect
         case (
             LoginScreenViewController._loginLabel,
             let listener as (User) -> ()
         ),
             (nil, let listener as (User) -> ()):
             _loginUserListeners.append(listener)
-            return ()
+            return .effect
         case (
             LoginScreenViewController._createAccountLabel,
             let listener as (AuthDataResult) -> ()
         ),
             (nil, let listener as (AuthDataResult) -> ()):
             _createAccountResultListeners.append(listener)
-            return ()
+            return .effect
         case (
             LoginScreenViewController._createAccountLabel,
             let listener as (User) -> ()
         ),
             (nil, let listener as (User) -> ()):
             _createAccountUserListeners.append(listener)
-            return ()
+            return .effect
         default:
-            return nil
+            return .noEffect
         }
+    }
+    
+    func getGeneric<Value>(
+        named label: String?,
+        _ type: Value.Type
+    ) -> Value? {
+        return nil
     }
 }
 

@@ -533,20 +533,20 @@
                             </constraints>
                         </view>
                         <view key="tableFooterView" contentMode="scaleToFill" id="tTp-y0-Cf1">
-                            <rect key="frame" x="0.0" y="317" width="393" height="400"/>
+                            <rect key="frame" x="0.0" y="317" width="393" height="288"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES"/>
                             <subviews>
                                 <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="qgv-kR-uGF">
-                                    <rect key="frame" x="178" y="235.33333333333334" width="37" height="37.000000000000028"/>
+                                    <rect key="frame" x="178" y="123.33333333333331" width="37" height="37"/>
                                 </activityIndicatorView>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1pJ-pY-K4e">
-                                    <rect key="frame" x="32" y="280.33333333333331" width="329" height="0.0"/>
+                                    <rect key="frame" x="32" y="168.33333333333334" width="329" height="0.0"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                     <color key="textColor" systemColor="systemRedColor"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fV6-pD-sSB">
-                                    <rect key="frame" x="48" y="288.33333333333331" width="297" height="48"/>
+                                    <rect key="frame" x="48" y="176.33333333333334" width="297" height="48"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="48" id="R5r-XH-vXi"/>
                                     </constraints>
@@ -559,7 +559,7 @@
                                     </connections>
                                 </button>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1hK-8D-tgd">
-                                    <rect key="frame" x="64" y="344.33333333333331" width="265" height="35.666666666666686"/>
+                                    <rect key="frame" x="64" y="232.33333333333334" width="265" height="35.666666666666657"/>
                                     <state key="normal" title="Button"/>
                                     <buttonConfiguration key="configuration" style="plain" title="Create account instead" cornerStyle="large">
                                         <fontDescription key="titleFontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="18"/>
@@ -687,20 +687,20 @@
                             </constraints>
                         </view>
                         <view key="tableFooterView" contentMode="scaleToFill" id="Q1p-cp-SaP">
-                            <rect key="frame" x="0.0" y="317" width="393" height="400"/>
+                            <rect key="frame" x="0.0" y="317" width="393" height="288"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES"/>
                             <subviews>
                                 <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="Ysp-20-x9B">
-                                    <rect key="frame" x="178" y="235.33333333333334" width="37" height="37.000000000000028"/>
+                                    <rect key="frame" x="178" y="123.33333333333331" width="37" height="37"/>
                                 </activityIndicatorView>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aSZ-NG-hTV">
-                                    <rect key="frame" x="32" y="280.33333333333331" width="329" height="0.0"/>
+                                    <rect key="frame" x="32" y="168.33333333333334" width="329" height="0.0"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                     <color key="textColor" systemColor="systemRedColor"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qfN-Rm-TZR">
-                                    <rect key="frame" x="48" y="288.33333333333331" width="297" height="48"/>
+                                    <rect key="frame" x="48" y="176.33333333333334" width="297" height="48"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="48" id="Gy4-DP-rTN"/>
                                     </constraints>
@@ -713,7 +713,7 @@
                                     </connections>
                                 </button>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nIN-gi-gda">
-                                    <rect key="frame" x="64" y="344.33333333333331" width="265" height="35.666666666666686"/>
+                                    <rect key="frame" x="64" y="232.33333333333334" width="265" height="35.666666666666657"/>
                                     <state key="normal" title="Button"/>
                                     <buttonConfiguration key="configuration" style="plain" title="Login instead" cornerStyle="large">
                                         <fontDescription key="titleFontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="18"/>

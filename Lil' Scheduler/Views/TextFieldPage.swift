@@ -7,11 +7,21 @@
 
 import UIKit
 
-/// ### Responds:
-/// * `"value"` or `"text"` or nil : `String`
+/// ### Generic Gets:
+/// * `"value"` : `String`
+/// * `"text"` : `String`
+/// * nil : `String`
+///
+/// ### Generic Sets:
+/// * `"value"` : `String?`
+/// * `"text"` : `String?`
+/// * nil : `String?`
+/// * `"value"` : `(String) -> ()`
+/// * `"text"` : `(String) -> ()`
+/// * nil : `(String) -> ()`
 public class TextFieldPageTableViewCell
     : UITableViewCell,
-    ValueResponder {
+    GenericValueInterface {
     
     private var _titleBuffer: String?? = nil
     private var _placeholderBuffer: String?? = nil
@@ -131,19 +141,39 @@ public class TextFieldPageTableViewCell
     }
     
     private var _valueListeners: [(String) -> ()] = []
-    
-    func listen<Value>(
+
+    func getGeneric<Value>(
         named label: String?,
-        with listener: @escaping (Value) -> ()
-    ) -> ()? {
-        switch (label, listener) {
+        _ type: Value.Type
+    ) -> Value? {
+        switch label {
+        case "value" where type == String.self,
+            "text" where type == String.self,
+            nil where type == String.self:
+            return self.value as! Value?
+        default:
+            return nil
+        }
+    }
+
+    func setGeneric<Value>(
+        named label: String?,
+        _ type: Value.Type,
+        _ value: Value
+    ) -> GenericSetResponse {
+        switch (label, value) {
+        case ("value", let value as String?),
+            ("text", let value as String?),
+            (nil, let value as String?):
+            self.value = value
+            return .effect
         case ("value", let listener as (String) -> ()),
             ("text", let listener as (String) -> ()),
             (nil, let listener as (String) -> ()):
             self._valueListeners.append(listener)
-            return ()
+            return .caught
         default:
-            return nil
+            return .noEffect
         }
     }
 }

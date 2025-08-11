@@ -12,42 +12,47 @@ import UIKit
 /// * `"refresh"` or nil : `()`
 public class CalanderDayScreenViewController
     : UITableViewController,
-    ValueReceiver,
-    ValueResponder {
+    GenericValueInterface {
     
     private var _day: Date = Date.now
+    
+    func getGeneric<Value>(
+        named label: String?,
+        _ type: Value.Type
+    ) -> Value? {
+        switch label {
+        case "day" where type == Date.self,
+            nil where type == Date.self:
+            return self._day as! Value?
+        default:
+            return nil
+        }
+    }
 
-    func send<Value>(named label: String?, _ value: Value) -> ()? {
+    func setGeneric<Value>(
+        named label: String?,
+        _ type: Value.Type,
+        _ value: Value
+    ) -> GenericSetResponse {
         switch (label, value) {
         case ("day", let value as Date),
             (nil, let value as Date):
             self._day = value
             self.tableView.reloadData()
-            return ()
+            return .effect
         case ("refresh", let value as ()),
             (nil, let value as ()):
             self.tableView.reloadData()
-            return ()
+            return .caught
         default:
-            return nil
-        }
-    }
-    
-    func listen<Value>(
-        named label: String?,
-        with listener: @escaping (Value) -> ()
-    ) -> ()? {
-        switch (label, listener) {
-        default:
-            return nil
+            return .noEffect
         }
     }
 }
 
 public class CalanderDayScreenTableViewCell
     : UITableViewCell,
-    ValueReceiver,
-    ValueResponder {
+    GenericValueInterface {
     
     @IBOutlet private var _title: UILabel?
     @IBOutlet private var _description: UILabel?
@@ -58,21 +63,25 @@ public class CalanderDayScreenTableViewCell
         self._description!.text = nil
         self._attributeList!.text = nil
     }
-
-    func send<Value>(named label: String?, _ value: Value) -> ()? {
-        switch (label, value) {
+    
+    func getGeneric<Value>(
+        named label: String?,
+        _ type: Value.Type
+    ) -> Value? {
+        switch label {
         default:
             return nil
         }
     }
-    
-    func listen<Value>(
+
+    func setGeneric<Value>(
         named label: String?,
-        with listener: @escaping (Value) -> ()
-    ) -> ()? {
-        switch (label, listener) {
+        _ type: Value.Type,
+        _ value: Value
+    ) -> GenericSetResponse {
+        switch (label, value) {
         default:
-            return nil
+            return .noEffect
         }
     }
 }

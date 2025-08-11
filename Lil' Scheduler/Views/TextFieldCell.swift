@@ -7,11 +7,14 @@
 
 import UIKit
 
-/// ### Responds:
+/// ### Generic Gets:
 /// * `"value"` or `"text"` or nil : `String`
+///
+/// ### Generic Sets:
+/// * `"value"` or `"text"` or nil : `String?` or `(String) -> ()`
 public class TextFieldTableViewCell
     : UITableViewCell,
-    ValueResponder {
+    GenericValueInterface {
     
     public override func prepareForReuse() {
         self._valueListeners.removeAll()
@@ -52,19 +55,39 @@ public class TextFieldTableViewCell
     }
     
     private var _valueListeners: [(String) -> ()] = []
-    
-    func listen<Value>(
+
+    func getGeneric<Value>(
         named label: String?,
-        with listener: @escaping (Value) -> ()
-    ) -> ()? {
-        switch (label, listener) {
+        _ type: Value.Type
+    ) -> Value? {
+        switch label {
+        case "value" where type == String.self,
+            "text" where type == String.self,
+            nil where type == String.self:
+            return self.value as! Value?
+        default:
+            return nil
+        }
+    }
+
+    func setGeneric<Value>(
+        named label: String?,
+        _ type: Value.Type,
+        _ value: Value
+    ) -> GenericSetResponse {
+        switch (label, value) {
+        case ("value", let value as String?),
+            ("text", let value as String?),
+            (nil, let value as String?):
+            self.value = value
+            return .effect
         case ("value", let listener as (String) -> ()),
             ("text", let listener as (String) -> ()),
             (nil, let listener as (String) -> ()):
-            _valueListeners.append(listener)
-            return ()
+            self._valueListeners.append(listener)
+            return .caught
         default:
-            return nil
+            return .noEffect
         }
     }
 }

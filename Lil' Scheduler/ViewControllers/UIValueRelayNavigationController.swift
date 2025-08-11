@@ -7,32 +7,34 @@
 
 import UIKit
 
-/// ### Receives:
+/// ### Generic Gets:
 /// * `Any` : `Any`
 ///     * Relayed to the top-most `viewController`.
-/// ### Responds:
+///
+/// ### Generic Sets:
 /// * `Any` : `Any`
 ///     * Relayed to the top-most `viewController`.
 public class UIValueRelayNavigationController
     : UINavigationController,
-    ValueReceiver,
-    ValueResponder {
-
-    func send<Value>(
-        named label: String?,
-        _ value: Value
-    ) -> ()? {
-        self.viewControllers.last?.sendIfReceiver(
-            named: label,
-            value)
-    }
+    GenericValueInterface {
     
-    func listen<Value>(
+    func getGeneric<Value>(
         named label: String?,
-        with listener: @escaping (Value) -> ()
-    ) -> ()? {
-        self.viewControllers.last?.listenIfResponder(
+        _ type: Value.Type
+    ) -> Value? {
+        self.viewControllers.last?.getIfGeneric(
             named: label,
-            with: listener)
+            type)
+    }
+
+    func setGeneric<Value>(
+        named label: String?,
+        _ type: Value.Type,
+        _ value: Value
+    ) -> GenericSetResponse {
+        self.viewControllers.last?.setIfGeneric(
+            named: label,
+            type,
+            value) ?? GenericSetResponse.noEffect
     }
 }

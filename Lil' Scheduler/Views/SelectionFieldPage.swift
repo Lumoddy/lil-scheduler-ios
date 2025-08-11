@@ -7,11 +7,14 @@
 
 import UIKit
 
-/// ### Responds:
-/// * `"value"` or nil : `String`
+/// ### Generic Gets:
+/// * `"value"` or nil : `IndexPath`
+///
+/// ### Generic Sets:
+/// * `"value"` or nil : `IndexPath?` or `(IndexPath) -> ()`
 public class SelectionFieldPageTableViewCell
     : UITableViewCell,
-    ValueResponder {
+    GenericValueInterface {
     
     public class Section {
         
@@ -164,18 +167,36 @@ public class SelectionFieldPageTableViewCell
     }
     
     private var _valueListeners: [(IndexPath) -> ()] = []
-    
-    func listen<Value>(
+
+    func getGeneric<Value>(
         named label: String?,
-        with listener: @escaping (Value) -> ()
-    ) -> ()? {
-        switch (label, listener) {
-        case ("value", let listener as (IndexPath) -> ()),
-            (nil, let listener as (IndexPath) -> ()):
-            _valueListeners.append(listener)
-            return ()
+        _ type: Value.Type
+    ) -> Value? {
+        switch label {
+        case "value" where type == IndexPath.self,
+            nil where type == IndexPath.self:
+            return self.value as! Value?
         default:
             return nil
+        }
+    }
+
+    func setGeneric<Value>(
+        named label: String?,
+        _ type: Value.Type,
+        _ value: Value
+    ) -> GenericSetResponse {
+        switch (label, value) {
+        case ("value", let value as IndexPath?),
+            (nil, let value as IndexPath?):
+            self.value = value
+            return .effect
+        case ("value", let listener as (IndexPath) -> ()),
+            (nil, let listener as (IndexPath) -> ()):
+            self._valueListeners.append(listener)
+            return .caught
+        default:
+            return .noEffect
         }
     }
 }
