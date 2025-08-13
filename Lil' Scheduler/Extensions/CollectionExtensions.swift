@@ -10,7 +10,7 @@ import Foundation
 extension Collection {
     
     public func contains(index: Self.Index) -> Bool {
-        return index >= self.startIndex && index < self.endIndex
+        return self.indices.contains(index)
     }
 
     public subscript (safe index: Self.Index) -> Self.Element? {
@@ -100,6 +100,16 @@ extension RangeReplaceableCollection {
             return nil
         }
         return self.remove(at: index)
+    }
+    
+    @discardableResult
+    public mutating func remove(safelyAt index: Self.Index) -> Self.Element? {
+        if self.contains(index: index) {
+            return self.remove(at: index)
+        }
+        else {
+            return nil
+        }
     }
 }
 

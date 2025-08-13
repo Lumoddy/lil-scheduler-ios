@@ -85,8 +85,8 @@ public class SelectionFieldPageTableViewCell
         self._valueBuffer = nil
         self._selectionsBuffer = nil
         self._recentPage = nil
-        self._label!.text = nil
-        self._preview!.text = nil
+        self._label?.text = nil
+        self._preview?.text = nil
     }
     
     @IBOutlet private var _label: UILabel?
@@ -128,10 +128,10 @@ public class SelectionFieldPageTableViewCell
                 self._selectionsBuffer = newValue
             }
             if let value = self.value {
-                self._preview!.text = newValue?.label(at: value)
+                self._preview?.text = newValue?.label(at: value)
             }
             else {
-                self._preview!.text = nil
+                self._preview?.text = nil
             }
         }
     }
@@ -153,17 +153,17 @@ public class SelectionFieldPageTableViewCell
                 self._valueBuffer = newValue
             }
             if let newValue = newValue {
-                self._preview!.text = self.selections?.label(at: newValue)
+                self._preview?.text = self.selections?.label(at: newValue)
             }
             else {
-                self._preview!.text = nil
+                self._preview?.text = nil
             }
         }
     }
     
     public var label: String? {
-        get { return self._label!.text }
-        set { self._label!.text = newValue }
+        get { return self._label?.text }
+        set { self._label?.text = newValue }
     }
     
     private var _valueListeners: [(IndexPath) -> ()] = []
@@ -183,7 +183,6 @@ public class SelectionFieldPageTableViewCell
 
     func setGeneric<Value>(
         named label: String?,
-        _ type: Value.Type,
         _ value: Value
     ) -> GenericSetResponse {
         switch (label, value) {

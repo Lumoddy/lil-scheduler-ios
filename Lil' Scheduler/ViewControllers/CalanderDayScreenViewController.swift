@@ -31,7 +31,6 @@ public class CalanderDayScreenViewController
 
     func setGeneric<Value>(
         named label: String?,
-        _ type: Value.Type,
         _ value: Value
     ) -> GenericSetResponse {
         switch (label, value) {
@@ -51,37 +50,37 @@ public class CalanderDayScreenViewController
 }
 
 public class CalanderDayScreenTableViewCell
-    : UITableViewCell,
-    GenericValueInterface {
+    : UITableViewCell {
     
-    @IBOutlet private var _title: UILabel?
-    @IBOutlet private var _description: UILabel?
-    @IBOutlet private var _attributeList: UILabel?
+    @IBOutlet private var _time: UILabel!
+    @IBOutlet private var _title: UILabel!
+    @IBOutlet private var _description: UILabel!
+    @IBOutlet private var _attributeList: UILabel!
     
     public override func prepareForReuse() {
-        self._title!.text = nil
-        self._description!.text = nil
-        self._attributeList!.text = nil
+        self.time = nil
+        self.title = nil
+        self.descriptionText = nil
+        self.attributeList = nil
     }
     
-    func getGeneric<Value>(
-        named label: String?,
-        _ type: Value.Type
-    ) -> Value? {
-        switch label {
-        default:
-            return nil
-        }
+    public var time: String? {
+        get { return self._time.text }
+        set { self._time.text = newValue }
     }
-
-    func setGeneric<Value>(
-        named label: String?,
-        _ type: Value.Type,
-        _ value: Value
-    ) -> GenericSetResponse {
-        switch (label, value) {
-        default:
-            return .noEffect
-        }
+    
+    public var title: String? {
+        get { return self._title.text }
+        set { self._title.text = newValue }
+    }
+    
+    public var descriptionText: String? {
+        get { return self._description.text }
+        set { self._description.text = newValue }
+    }
+    
+    public var attributeList: String? {
+        get { return self._attributeList.text }
+        set { self._attributeList.text = newValue }
     }
 }

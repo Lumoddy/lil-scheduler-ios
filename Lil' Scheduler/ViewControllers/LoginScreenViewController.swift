@@ -10,21 +10,20 @@ import FirebaseAuth
 import FirebaseFirestore
 
 /// ### Generic Gets:
-/// * `"authenticated"` or nil : `AuthDataResult` and `User`
-/// * `"login"` : `AuthDataResult` and `User`
-/// * `"createAccount"` : `AuthDataResult` and `User`
+/// * `"authenticated"` or nil : `AuthDataResult` or `User`
+/// * `"login"` : `AuthDataResult` or `User`
+/// * `"createAccount"` : `AuthDataResult` or `User`
 ///
 /// ### Generic Sets:
-/// * `"authenticated"` : `AuthDataResult` and `User` and `()`
-/// * `"login"` : `AuthDataResult` and `User` and `()`
-/// * `"createAccount"` : `AuthDataResult` and `User` and `()`
+/// * `"authenticated"` : `AuthDataResult` or `User` or
+///     `(AuthDataResult) -> ()` or `(User) -> ()`
+/// * `"login"` : `AuthDataResult` or `User` or
+///     `(AuthDataResult) -> ()` or `(User) -> ()`
+/// * `"createAccount"` : `AuthDataResult` or `User` or
+///     `(AuthDataResult) -> ()` or `(User) -> ()`
 public class LoginScreenViewController
     : UITableViewController,
     GenericValueInterface {
-    
-    private static let _authenticatedLabel = "authenticated"
-    private static let _loginLabel = "login"
-    private static let _createAccountLabel = "createAccount"
     
     @IBOutlet private var _emailField: UITextField?
     @IBOutlet private var _passwordField: UITextField?
@@ -52,24 +51,6 @@ public class LoginScreenViewController
                     for listener in self._loginUserListeners {
                         listener(result.user)
                     }
-                    self.setAllGenericBelow(
-                        named: LoginScreenViewController._authenticatedLabel,
-                        result)
-                    self.setAllGenericBelow(
-                        named: LoginScreenViewController._authenticatedLabel,
-                        result.user)
-                    self.setAllGenericBelow(
-                        named: LoginScreenViewController._authenticatedLabel,
-                        ())
-                    self.setAllGenericBelow(
-                        named: LoginScreenViewController._loginLabel,
-                        result)
-                    self.setAllGenericBelow(
-                        named: LoginScreenViewController._loginLabel,
-                        result.user)
-                    self.setAllGenericBelow(
-                        named: LoginScreenViewController._loginLabel,
-                        ())
                     self.navigationController!.popToBeforeViewController(
                         self,
                         animated: true,
@@ -105,24 +86,6 @@ public class LoginScreenViewController
                     for listener in self._createAccountUserListeners {
                         listener(result.user)
                     }
-                    self.setAllGenericBelow(
-                        named: LoginScreenViewController._authenticatedLabel,
-                        result)
-                    self.setAllGenericBelow(
-                        named: LoginScreenViewController._authenticatedLabel,
-                        result.user)
-                    self.setAllGenericBelow(
-                        named: LoginScreenViewController._authenticatedLabel,
-                        ())
-                    self.setAllGenericBelow(
-                        named: LoginScreenViewController._createAccountLabel,
-                        result)
-                    self.setAllGenericBelow(
-                        named: LoginScreenViewController._createAccountLabel,
-                        result.user)
-                    self.setAllGenericBelow(
-                        named: LoginScreenViewController._createAccountLabel,
-                        ())
                     self.navigationController!.popToBeforeViewController(
                         self,
                         animated: true,
@@ -138,7 +101,9 @@ public class LoginScreenViewController
     }
     
     @IBAction private func _loginInstead() {
-        let screen = storyboard!.instantiateLoginScreenViewController()
+        let screen = self.storyboard!.instantiateViewController(
+            withIdentifier: "LoginScreen")
+            as! LoginScreenViewController
         screen._authenticatedResultListeners = self._authenticatedResultListeners
         screen._authenticatedUserListeners = self._authenticatedUserListeners
         screen._loginResultListeners = self._loginResultListeners
@@ -151,7 +116,9 @@ public class LoginScreenViewController
     }
     
     @IBAction private func _createAccountInstead() {
-        let screen = storyboard!.instantiateCreateAccountScreenViewController()
+        let screen = self.storyboard!.instantiateViewController(
+            withIdentifier: "CreateAccountScreen")
+            as! LoginScreenViewController
         screen._authenticatedResultListeners = self._authenticatedResultListeners
         screen._authenticatedUserListeners = self._authenticatedUserListeners
         screen._loginResultListeners = self._loginResultListeners
@@ -172,55 +139,36 @@ public class LoginScreenViewController
     
     func setGeneric<Value>(
         named label: String?,
-        _ type: Value.Type,
         _ value: Value
     ) -> GenericSetResponse {
         switch (label, value) {
         case ("error", let value as String?):
             self._errorLabel?.text = value
             return .effect
-        case (
-            LoginScreenViewController._authenticatedLabel,
-            let listener as (AuthDataResult) -> ()
-        ),
+        case ("authenticated", let listener as (AuthDataResult) -> ()),
             (nil, let listener as (AuthDataResult) -> ()):
             _authenticatedResultListeners.append(listener)
-            return .effect
-        case (
-            LoginScreenViewController._authenticatedLabel,
-            let listener as (User) -> ()
-        ),
+            return .caught
+        case ("authenticated", let listener as (User) -> ()),
             (nil, let listener as (User) -> ()):
             _authenticatedUserListeners.append(listener)
-            return .effect
-        case (
-            LoginScreenViewController._loginLabel,
-            let listener as (AuthDataResult) -> ()
-        ),
+            return .caught
+        case ("login", let listener as (AuthDataResult) -> ()),
             (nil, let listener as (AuthDataResult) -> ()):
             _loginResultListeners.append(listener)
-            return .effect
-        case (
-            LoginScreenViewController._loginLabel,
-            let listener as (User) -> ()
-        ),
+            return .caught
+        case ("login", let listener as (User) -> ()),
             (nil, let listener as (User) -> ()):
             _loginUserListeners.append(listener)
-            return .effect
-        case (
-            LoginScreenViewController._createAccountLabel,
-            let listener as (AuthDataResult) -> ()
-        ),
+            return .caught
+        case ("createAccount", let listener as (AuthDataResult) -> ()),
             (nil, let listener as (AuthDataResult) -> ()):
             _createAccountResultListeners.append(listener)
-            return .effect
-        case (
-            LoginScreenViewController._createAccountLabel,
-            let listener as (User) -> ()
-        ),
+            return .caught
+        case ("createAccount", let listener as (User) -> ()),
             (nil, let listener as (User) -> ()):
             _createAccountUserListeners.append(listener)
-            return .effect
+            return .caught
         default:
             return .noEffect
         }
@@ -236,17 +184,10 @@ public class LoginScreenViewController
 
 extension UIStoryboard {
     
-    public func instantiateLoginScreenViewController(
-    ) -> LoginScreenViewController {
+    public func instantiateLoginPair(
+    ) -> UIValueRelayNavigationController {
         return self.instantiateViewController(
-            withIdentifier: "LoginScreen")
-            as! LoginScreenViewController
-    }
-    
-    public func instantiateCreateAccountScreenViewController(
-    ) -> LoginScreenViewController {
-        return self.instantiateViewController(
-            withIdentifier: "CreateAccountScreen")
-            as! LoginScreenViewController
+            withIdentifier: "LoginPair")
+        as! UIValueRelayNavigationController
     }
 }

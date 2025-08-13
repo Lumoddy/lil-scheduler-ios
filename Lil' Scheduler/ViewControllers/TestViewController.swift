@@ -69,7 +69,7 @@ public class TestViewController : UITableViewController {
                 cell.label = "Test Label"
                 cell.placeholder = "Test Placeholder"
                 cell.value = self.test1Text
-                cell.listen { (value: String) in
+                cell.setGeneric { (value: String) in
                     self.test1Text = value
                     print("Test1 = \(value)")
                     tableView.reloadData()
@@ -82,7 +82,7 @@ public class TestViewController : UITableViewController {
                 cell.label = "Test Label"
                 cell.placeholder = "Test Placeholder"
                 cell.value = self.test2Text
-                cell.listen { (value: String) in
+                cell.setGeneric { (value: String) in
                     self.test2Text = value
                     print("Test2 = \(value)")
                     tableView.reloadData()
@@ -96,7 +96,7 @@ public class TestViewController : UITableViewController {
                 cell.label = "Test Label"
                 cell.value = self.test3Value
                 cell.selections = self.test3Selections
-                cell.listen { (value: IndexPath) in
+                cell.setGeneric { (value: IndexPath) in
                     self.test3Value = value
                     print("Test3 = \(String(describing: value))")
                     tableView.reloadData()

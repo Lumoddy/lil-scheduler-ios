@@ -18,12 +18,12 @@ public class TextFieldTableViewCell
     
     public override func prepareForReuse() {
         self._valueListeners.removeAll()
-        self._label.text = nil
+        self._label?.text = nil
         self._field.placeholder = nil
         self._field.text = nil
     }
     
-    @IBOutlet private var _label: UILabel!
+    @IBOutlet private var _label: UILabel?
     @IBOutlet private var _field: UITextField!
     
     @IBAction private func _onTextChange() {
@@ -34,8 +34,8 @@ public class TextFieldTableViewCell
     }
     
     public var label: String? {
-        get { return _label.text }
-        set { _label.text = newValue }
+        get { return _label?.text }
+        set { _label?.text = newValue }
     }
     
     public var placeholder: String? {
@@ -72,7 +72,6 @@ public class TextFieldTableViewCell
 
     func setGeneric<Value>(
         named label: String?,
-        _ type: Value.Type,
         _ value: Value
     ) -> GenericSetResponse {
         switch (label, value) {

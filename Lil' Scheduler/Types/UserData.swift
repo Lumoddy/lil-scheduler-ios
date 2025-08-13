@@ -16,7 +16,10 @@ public class UserData : Codable {
         self.tasks = []
     }
     
+    /// Don't use directly, if you want to modify values you should make a copy
+    /// with `.clone()`
     public static var cloudData: UserData? = nil
+    public static var localData: UserData = UserData()
     
     public static func cloudGet(
         completion: ((UserData?, (any Error)?) -> ())?
@@ -36,7 +39,10 @@ public class UserData : Codable {
                 if document.exists {
                     do {
                         print("Found UserData from cloud.");
-                        completion?(try document.data(as: UserData.self), nil)
+                        let data = try document.data(as: UserData.self)
+                        self.cloudData = data
+                        self.localData = data.clone()
+                        completion?(data, nil)
                         return
                     }
                     catch {
@@ -47,7 +53,10 @@ public class UserData : Codable {
                 }
                 else {
                     print("Found empty UserData from cloud.");
-                    completion?(UserData(), nil)
+                    let data = UserData()
+                    self.cloudData = data
+                    self.localData = data.clone()
+                    completion?(data, nil)
                     return
                 }
             case (nil, let error?):
@@ -73,14 +82,14 @@ public class UserData : Codable {
         let userDocumentReference = firestore.document(
             "users/\(auth.currentUser!.uid)")
         
-        let previousCloudData = cloudData
-        cloudData = userData
+        let previousCloudData = self.cloudData
+        self.cloudData = userData
         try userDocumentReference.setData(
             from: userData,
             completion: { error in
                 if let error = error {
                     DispatchQueue.main.async {
-                        cloudData = previousCloudData
+                        self.cloudData = previousCloudData
                     }
                     print("Failed to send UserData to cloud.");
                     completion?(error)

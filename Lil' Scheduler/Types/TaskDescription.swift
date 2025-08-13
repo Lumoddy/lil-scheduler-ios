@@ -44,7 +44,7 @@ public final class TaskDescription : Codable {
     }
 
     public var title: String
-    public var description: String
+    public var descriptionText: String
     public var color: RGB
     public var attributes: [TaskAttributeDescription]?
     
@@ -55,7 +55,7 @@ public final class TaskDescription : Codable {
         attributes: [TaskAttributeDescription]? = nil
     ) {
         self.title = title
-        self.description = description
+        self.descriptionText = description
         self.color = color
         self.attributes = attributes
     }
@@ -68,7 +68,7 @@ public final class TaskDescription : Codable {
             String.self,
             forKey: .title)
 
-        description = try container.decodeIfPresent(
+        descriptionText = try container.decodeIfPresent(
             String.self,
             forKey: .description) ?? ""
 
@@ -101,8 +101,8 @@ public final class TaskDescription : Codable {
 
         try container.encode(title, forKey: .title)
 
-        if description.count != 0 {
-            try container.encode(description, forKey: .description)
+        if descriptionText.count != 0 {
+            try container.encode(descriptionText, forKey: .description)
         }
 
         try container.encode(color.hex, forKey: .color)
@@ -115,7 +115,7 @@ public final class TaskDescription : Codable {
     public func clone() -> TaskDescription {
         return TaskDescription(
             title: self.title,
-            description: self.description,
+            description: self.descriptionText,
             color: self.color,
             attributes: self.attributes?.map { attribute in
                 attribute.clone()

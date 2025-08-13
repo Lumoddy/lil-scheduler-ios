@@ -29,12 +29,10 @@ public class UIValueRelayNavigationController
 
     func setGeneric<Value>(
         named label: String?,
-        _ type: Value.Type,
         _ value: Value
     ) -> GenericSetResponse {
         self.viewControllers.last?.setIfGeneric(
             named: label,
-            type,
             value) ?? GenericSetResponse.noEffect
     }
 }

@@ -70,16 +70,16 @@ public class TextFieldPageTableViewCell
         self._placeholderBuffer = nil
         self._valueBuffer = nil
         self._recentPage = nil
-        self._label.text = nil
-        self._preview.text = nil
+        self._label?.text = nil
+        self._preview?.text = nil
     }
     
-    @IBOutlet private var _label: UILabel!
-    @IBOutlet private var _preview: UILabel!
+    @IBOutlet private var _label: UILabel?
+    @IBOutlet private var _preview: UILabel?
     
     public var label: String? {
-        get { return self._label.text }
-        set { self._label.text = newValue }
+        get { return self._label?.text }
+        set { self._label?.text = newValue }
     }
     
     public var title: String? {
@@ -136,7 +136,7 @@ public class TextFieldPageTableViewCell
             else {
                 self._valueBuffer = newValue
             }
-            self._preview.text = newValue
+            self._preview?.text = newValue
         }
     }
     
@@ -158,7 +158,6 @@ public class TextFieldPageTableViewCell
 
     func setGeneric<Value>(
         named label: String?,
-        _ type: Value.Type,
         _ value: Value
     ) -> GenericSetResponse {
         switch (label, value) {
@@ -178,10 +177,6 @@ public class TextFieldPageTableViewCell
     }
 }
 
-/// ### Responds:
-/// * `"value"` or `"text"` or nil : `String`
-/// * `"back"` or nil : `()`
-///     * Expects navigation to pop back to calling view controller.
 public class TextFieldPageViewController
     : UITableViewController {
     
