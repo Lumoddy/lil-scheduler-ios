@@ -203,9 +203,8 @@ public class TextFieldPageViewController
     }
 
     @IBAction private func _onCancel() {
-        let value = self.value ?? ""
-        for listener in self._valueListeners {
-            listener(value)
+        for listener in self._backListeners {
+            listener(())
         }
         self._valueListeners.removeAll()
         self._backListeners.removeAll()

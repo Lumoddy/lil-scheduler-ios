@@ -34,9 +34,22 @@
 		1354EF642E2DDA37003BBBB1 /* Lil' SchedulerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Lil' SchedulerUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		13B8673E2E4DAFE70026512F /* Exceptions for "Lil' Scheduler" folder in "Lil' Scheduler" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 1354EF432E2DDA35003BBBB1 /* Lil' Scheduler */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		1354EF462E2DDA35003BBBB1 /* Lil' Scheduler */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				13B8673E2E4DAFE70026512F /* Exceptions for "Lil' Scheduler" folder in "Lil' Scheduler" target */,
+			);
 			path = "Lil' Scheduler";
 			sourceTree = "<group>";
 		};

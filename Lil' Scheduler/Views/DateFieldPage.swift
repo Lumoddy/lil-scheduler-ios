@@ -8,17 +8,11 @@
 import UIKit
 
 /// ### Generic Gets:
-/// * `"value"` : `Date`
-/// * `"date"` : `Date`
-/// * nil : `Date`
+/// * `"value"` or `"date"` or nil : `Date`
 ///
 /// ### Generic Sets:
-/// * `"value"` : `Date?`
-/// * `"date"` : `Date?`
-/// * nil : `Date?`
-/// * `"value"` : `(Date) -> ()`
-/// * `"date"` : `(Date) -> ()`
-/// * nil : `(Date) -> ()`
+/// * `"value"` or `"date"` or nil : `Date?`
+/// * `"value"` or `"date"` or nil : `(Date) -> ()`
 public class DateFieldPageTableViewCell
     : UITableViewCell,
     GenericValueInterface {
@@ -34,7 +28,7 @@ public class DateFieldPageTableViewCell
         let result = self.viewController!
             .storyboard!
             .instantiateViewController(
-                withIdentifier: "TextFieldPage")
+                withIdentifier: "DateFieldPage")
             as! DateFieldPageViewController
 
         result.listen { (value: Date) in
@@ -261,9 +255,8 @@ public class DateFieldPageViewController
     }
 
     @IBAction private func _onCancel() {
-        let value = self.value ?? Date.now
-        for listener in self._valueListeners {
-            listener(value)
+        for listener in self._backListeners {
+            listener(())
         }
         self._valueListeners.removeAll()
         self._backListeners.removeAll()
@@ -287,7 +280,7 @@ public class DateFieldPageViewController
         }
         set {
             if let field = self._field {
-                field.setDate(newValue ?? Date.now, animated: true)
+                field.date = newValue ?? Date.now
             }
             else {
                 self._valueBuffer = newValue

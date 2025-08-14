@@ -46,6 +46,53 @@ public class TaskListScreenViewController
         }
     }
     
+    @IBAction private func _createNewTask() {
+        let screen = self.storyboard!.instantiateViewController(
+            withIdentifier: "TaskDetailScreen")
+            as! TaskDetailScreenViewController
+        screen.setGeneric { (task: TaskDescription) in
+            UserData.localData.tasks.append(task)
+            self.tableView.reloadData()
+            tryUpload()
+            func tryUpload() {
+                do {
+                    try UserData.cloudSet(
+                        UserData.localData) { error in
+                        if error == nil {
+                            return
+                        }
+                        let alert = UIAlertController(
+                            title: "Cloud Error",
+                            message:
+                                "Failed to save to the cloud.",
+                            preferredStyle: .alert)
+                        alert.addAction(.init(
+                            title: "Retry",
+                            style: .default) { _ in
+                                tryUpload()
+                            })
+                        alert.addAction(.init(
+                            title: "Ignore",
+                            style: .cancel))
+                        self.present(alert, animated: true)
+                    }
+                }
+                catch {
+                    let alert = UIAlertController(
+                        title: "Cloud Error",
+                        message:
+                            "Failed to save to the cloud.",
+                        preferredStyle: .alert)
+                    alert.addAction(.init(
+                        title: "Ok",
+                        style: .cancel))
+                    self.present(alert, animated: true)
+                }
+            }
+        }
+        self.navigationController!.pushViewController(screen, animated: true)
+    }
+    
     func getGeneric<Value>(
         named label: String?,
         _ type: Value.Type
@@ -158,6 +205,103 @@ public class TaskListScreenViewController
                     }
                 }
             ])
+        default:
+            preconditionFailure()
+        }
+    }
+    
+    public override func tableView(
+        _ tableView: UITableView,
+        didSelectRowAt indexPath: IndexPath
+    ) {
+        switch indexPath.section {
+        case 0:
+            let index = indexPath.row
+            let screen = self.storyboard!.instantiateViewController(
+                withIdentifier: "TaskDetailScreen")
+                as! TaskDetailScreenViewController
+            screen.setGeneric(UserData.localData.tasks[index])
+            screen.setGeneric { (task: TaskDescription) in
+                UserData.localData.tasks[index] = task
+                self.tableView.reloadData()
+                tryUpload()
+                func tryUpload() {
+                    do {
+                        try UserData.cloudSet(
+                            UserData.localData) { error in
+                            if error == nil {
+                                return
+                            }
+                            let alert = UIAlertController(
+                                title: "Cloud Error",
+                                message:
+                                    "Failed to save to the cloud.",
+                                preferredStyle: .alert)
+                            alert.addAction(.init(
+                                title: "Retry",
+                                style: .default) { _ in
+                                    tryUpload()
+                                })
+                            alert.addAction(.init(
+                                title: "Ignore",
+                                style: .cancel))
+                            self.present(alert, animated: true)
+                        }
+                    }
+                    catch {
+                        let alert = UIAlertController(
+                            title: "Cloud Error",
+                            message:
+                                "Failed to save to the cloud.",
+                            preferredStyle: .alert)
+                        alert.addAction(.init(
+                            title: "Ok",
+                            style: .cancel))
+                        self.present(alert, animated: true)
+                    }
+                }
+            }
+            screen.setGeneric(named: "delete") { (_: ()) in
+                UserData.localData.tasks.remove(at: index)
+                self.tableView.reloadData()
+                tryUpload()
+                func tryUpload() {
+                    do {
+                        try UserData.cloudSet(
+                            UserData.localData) { error in
+                            if error == nil {
+                                return
+                            }
+                            let alert = UIAlertController(
+                                title: "Cloud Error",
+                                message:
+                                    "Failed to save to the cloud.",
+                                preferredStyle: .alert)
+                            alert.addAction(.init(
+                                title: "Retry",
+                                style: .default) { _ in
+                                    tryUpload()
+                                })
+                            alert.addAction(.init(
+                                title: "Ignore",
+                                style: .cancel))
+                            self.present(alert, animated: true)
+                        }
+                    }
+                    catch {
+                        let alert = UIAlertController(
+                            title: "Cloud Error",
+                            message:
+                                "Failed to save to the cloud.",
+                            preferredStyle: .alert)
+                        alert.addAction(.init(
+                            title: "Ok",
+                            style: .cancel))
+                        self.present(alert, animated: true)
+                    }
+                }
+            }
+            self.navigationController!.pushViewController(screen, animated: true)
         default:
             preconditionFailure()
         }

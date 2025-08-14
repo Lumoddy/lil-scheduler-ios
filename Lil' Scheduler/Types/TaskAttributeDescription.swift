@@ -62,7 +62,7 @@ public enum TaskAttributeDescription : Codable, CustomStringConvertible {
         public init?(intValue: Int) { nil }
     }
 
-    case duration(milliseconds: Int64)
+    case duration(timeInterval: TimeInterval)
     case fixedDate(at: Date)
     case priority(index: Int)
     
@@ -73,9 +73,9 @@ public enum TaskAttributeDescription : Codable, CustomStringConvertible {
         switch try container.decode(String.self, forKey: _Key.type) {
         case _Type.duration.stringValue:
             self = .duration(
-                milliseconds: try container.decode(
+                timeInterval: Double(try container.decode(
                     Int64.self,
-                    forKey: _Key.durationMilliseconds))
+                    forKey: _Key.durationMilliseconds)) / 1000.0)
             return
         case _Type.fixedDate.stringValue:
             self = .fixedDate(
@@ -147,10 +147,10 @@ public enum TaskAttributeDescription : Codable, CustomStringConvertible {
     
     public func clone() -> TaskAttributeDescription {
         switch self {
-        case .duration(let milliseconds):
-            return .duration(milliseconds: milliseconds)
-        case .fixedDate(let at):
-            return .fixedDate(at: at)
+        case .duration(let timeInterval):
+            return .duration(timeInterval: timeInterval)
+        case .fixedDate(let date):
+            return .fixedDate(at: date)
         case .priority(let index):
             return .priority(index: index)
         }

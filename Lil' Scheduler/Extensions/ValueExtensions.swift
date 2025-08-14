@@ -66,7 +66,6 @@ struct ArrayBuilder<T> : IteratorProtocol {
         case empty
         case single(T)
         case iterator(AnyIterator<T>)
-        case range(Int, over: AnyIterator<T>)
         case array([T])
     }
 
@@ -77,24 +76,8 @@ struct ArrayBuilder<T> : IteratorProtocol {
         case .single(let element):
             self._state = .empty
             return element
-        case .iterator(var iterator):
+        case .iterator(let iterator):
             return iterator.next()
-        case .range(var count, var iterator):
-            if let value = iterator.next() {
-                if count <= 0 {
-                    preconditionFailure(
-                        "Invalid state of iterator given to ArrayBuilder<T>.")
-                }
-                count -= 1
-                return value
-            }
-            else {
-                if count != 0 {
-                    preconditionFailure(
-                        "Invalid state of iterator given to ArrayBuilder<T>.")
-                }
-                return nil
-            }
         case .array(let array):
             self._state = .iterator(.init(array.makeIterator()))
             return self.next()
@@ -109,8 +92,6 @@ struct ArrayBuilder<T> : IteratorProtocol {
             return 1
         case .iterator(let iterator):
             return nil
-        case .range(let length, let iterator):
-            return length
         case .array(let array):
             return array.count
         }
@@ -130,6 +111,11 @@ struct ArrayBuilder<T> : IteratorProtocol {
         _ expression: I
     ) -> ArrayBuilder<T> where I : Sequence<T> {
         return self.init(.iterator(.init(expression.makeIterator())))
+    }
+    static func buildExpression(
+        _ expression: [T]
+    ) -> ArrayBuilder<T> {
+        return self.init(.array(expression))
     }
     static func buildExpression(
         _ expression: @escaping () -> T
@@ -156,34 +142,6 @@ struct ArrayBuilder<T> : IteratorProtocol {
             return [value]
         case .iterator(let iterator):
             return Array(iterator)
-        case .range(let count, let iterator):
-            if let first = iterator.next() {
-                if count <= 0 {
-                    preconditionFailure(
-                        "Invalid state of iterator given to ArrayBuilder<T>.")
-                }
-                var result = Array(repeating: first, count: count)
-                for i in 1..<count {
-                    guard let value = iterator.next() else {
-                        preconditionFailure(
-                            "Invalid state of iterator given to " +
-                            "ArrayBuilder<T>.")
-                    }
-                    result[i] = value
-                }
-                if iterator.next() != nil {
-                    preconditionFailure(
-                        "Invalid state of iterator given to ArrayBuilder<T>.")
-                }
-                return result
-            }
-            else if count != 0 {
-                preconditionFailure(
-                    "Invalid state of iterator given to ArrayBuilder<T>.")
-            }
-            else {
-                return []
-            }
         case .array(let array):
             return array
         }
@@ -213,12 +171,7 @@ struct ArrayBuilder<T> : IteratorProtocol {
                 return second.next()
             }
         }
-        switch (first?.count(), second.count()) {
-        case (let first?, let second?):
-            return self.init(.range(first + second, over: .init(iterate)))
-        default:
-            return self.init(.iterator(.init(iterate)))
-        }
+        return self.init(.iterator(.init(iterate)))
     }
     static func buildArray(
         _ components: [ArrayBuilder<T>]
@@ -237,21 +190,7 @@ struct ArrayBuilder<T> : IteratorProtocol {
                 return iterate()
             }
         }
-        if let count = components.reduce(0 as Int?, {
-            if
-                let previous = $0,
-                let next = $1.count() {
-                return previous + next
-            }
-            else {
-                return nil
-            }
-        }) {
-            return self.init(.range(count, over: .init(iterate)))
-        }
-        else {
-            return self.init(.iterator(.init(iterate)))
-        }
+        return self.init(.iterator(.init(iterate)))
     }
     static func buildOptional(
         _ component: ArrayBuilder<T>?
