@@ -326,6 +326,7 @@ public class TaskDetailScreenViewController
                         style: .destructive,
                         title: "Delete") { _, _, completion in
                             self._taskAttributes.remove(at: index)
+                            tableView.reloadData()
                             completion(true)
                         }
                 ])

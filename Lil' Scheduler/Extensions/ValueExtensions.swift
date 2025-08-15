@@ -88,9 +88,9 @@ struct ArrayBuilder<T> : IteratorProtocol {
         switch self._state {
         case .empty:
             return 0
-        case .single(let element):
+        case .single(_):
             return 1
-        case .iterator(let iterator):
+        case .iterator(_):
             return nil
         case .array(let array):
             return array.count
@@ -158,7 +158,6 @@ struct ArrayBuilder<T> : IteratorProtocol {
     ) -> ArrayBuilder<T> {
         var first: ArrayBuilder<T>? = accumulated
         var second: ArrayBuilder<T> = next
-        let count: Array<T>.Index?
         func iterate() -> T? {
             if first == nil {
                 return second.next()

@@ -116,7 +116,7 @@ public class TaskListScreenViewController
     public override func numberOfSections(
         in tableView: UITableView
     ) -> Int {
-        1
+        return 1
     }
     
     public override func tableView(
